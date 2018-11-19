@@ -4,7 +4,7 @@ def preprocess_data(citations):
     Return dictionary of lists of each feature
     """
 
-    pmids, titles, abstracts, affiliations, journal_nlmid = [], [], [], [], []
+    pmids, titles, abstracts, affiliations, journal_nlmid, labels = [], [], [], [], [], []
 
     for citation in citations:
         pmids.append(citation['pmid'])
@@ -22,9 +22,10 @@ def preprocess_data(citations):
             affiliations.append(citation['author_list'])
 
         journal_nlmid.append(citation['journal_nlmid'])
+        labels.append(citation['is_indexed'])
 
     citations = {'abstract': abstracts, 'titles': titles, 'author_list': affiliations}
 
-    return citations, journal_nlmid, pmids
+    return citations, journal_nlmid, labels
 
 
