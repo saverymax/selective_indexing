@@ -16,7 +16,7 @@ def preprocess_data(citations):
             abstracts.append("None")
         else:
             abstracts.append(citation['abstract'])
-        if citation['abstract'] == "":
+        if citation['author_list'] == "":
             affiliations.append("None")
         else:
             affiliations.append(citation['author_list'])

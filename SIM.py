@@ -5,6 +5,7 @@ from combined_model import *
 from daily_update_file_parser import parse_update_file
 from preprocess_CNN_data import get_batch_data 
 from preprocess_voting_data import preprocess_data
+from misindexed_journal_ids import misindexed_ids
 
 def get_args():
     """
@@ -25,6 +26,18 @@ def get_args():
                         help="If included, model will make predictions for misindexed journals that have been shown to be difficult to classify")
 
     return parser
+
+def drop_predictions(prediction_dict, adjusted_predictions):
+    """
+    Convert predictions of citations from 
+    misindexed citations to N/A
+    """
+
+    for i, journal_id in enumerate(prediction_dict['journal_ids']):
+        if journal_id in misindexed_ids:
+            adjusted_predictions[i] = "N/A"
+
+    return adjusted_predictions
 
 def save_predictions(adjusted_predictions, prediction_dict, pmids):
     """
@@ -50,7 +63,9 @@ def main(XML_path, journal_ids_path, word_indicies_path, group_thresh, journal_d
     combined_predictions = combine_predictions(voting_predictions, cnn_predictions)
     prediction_dict = {'predictions': combined_predictions, 'journal_ids': journal_ids}
     adjusted_predictions = adjust_thresholds(prediction_dict, group_thresh) 
-    print(adjusted_predictions)
+    # Convert predictions for citations from misindexed journals
+    if journal_drop:
+        adjusted_predictions = drop_predictions(prediction_dict, adjusted_predictions)
     save_predictions(adjusted_predictions, prediction_dict, pmids)
 
 if __name__ == "__main__":

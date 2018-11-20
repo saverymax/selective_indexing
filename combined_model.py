@@ -62,7 +62,7 @@ def run_voting(X):
 
 def adjust_thresholds(predictions_dict, group_thresh=True):
     """
-    Adjust threshold depending on category journal is in
+    Adjust threshold depending on the category of the journal 
     """
 
     print("Combining predictions")
@@ -86,9 +86,8 @@ def adjust_thresholds(predictions_dict, group_thresh=True):
 
 def combine_predictions(voting_predictions, cnn_predictions):
     """
-    combine the predictions of the two models
+    Combine the predictions of the two models
     """
 
-    combined_preds = voting_predictions*cnn_predictions
-    return combined_preds 
+    return voting_predictions*cnn_predictions
 
