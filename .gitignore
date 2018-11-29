@@ -1,7 +1,7 @@
 models/
+tests/datasets/
 __pycache__/
 *.xml
 pipeline_test_set
 *.json
-psql_config.py
-SIM_test_results
+*.txt

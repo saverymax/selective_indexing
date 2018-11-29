@@ -10,8 +10,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.metrics import classification_report
 
-from embedding_custom import EmbeddingWithDropout
-import group_ids 
+from .embedding_custom import EmbeddingWithDropout
+from .group_ids import science, jurisprudence
+from . import item_select
 
 def get_args():
     """
@@ -32,9 +33,9 @@ def run_CNN(X):
     """
 
     print("Making CNN predictions")
-    weights_path = ["models", "model_CNN_weights.hdf5"]
+    weights_path = ["selective_indexing_system", "models", "model_CNN_weights.hdf5"]
     weights_path = Path.cwd().joinpath(*weights_path)
-    model_path = ["models", "model_CNN.json"]
+    model_path = ["selective_indexing_system", "models", "model_CNN.json"]
     model_path = Path.cwd().joinpath(*model_path)
 
     with open(model_path, 'rt') as model_json_file:
@@ -53,7 +54,7 @@ def run_voting(X):
     """
 
     print("Making voting predictions")
-    model_path = ["models", "voting_recall_no_bad_journals_2017_data_model_tfidf_all_journals.joblib"]
+    model_path = ["selective_indexing_system", "models", "voting_recall_no_bad_journals_2017_data_model_tfidf_all_journals.joblib"]
     model_path = Path.cwd().joinpath(*model_path)
     model = joblib.load(model_path)
     y_probs = model.predict_proba(X)[:, 0]
@@ -76,9 +77,9 @@ def adjust_thresholds(predictions_dict, group_thresh=True):
     else:
         predictions = []
         for y, journal_id in zip(predictions_dict['predictions'], predictions_dict['journal_ids']):
-            if journal_id in group_ids.science:
+            if journal_id in science:
                 predictions.append(1 if y>= SCIENCE_THRESH else 0)
-            elif journal_id in group_ids.jurisprudence:
+            elif journal_id in jurisprudence:
                 predictions.append(1 if y>= JURISPRUDENCE_THRESH else 0)
             else:
                 predictions.append(1 if y>= COMBINED_THRESH else 0)
@@ -90,4 +91,17 @@ def combine_predictions(voting_predictions, cnn_predictions):
     """
 
     return voting_predictions*cnn_predictions
+
+def drop_predictions(prediction_dict, adjusted_predictions, misindexed_ids):
+    """
+    Convert predictions of citations from 
+    misindexed citations to N/A
+    """
+
+    for i, journal_id in enumerate(prediction_dict['journal_ids']):
+        if journal_id in misindexed_ids:
+            adjusted_predictions[i] = "N/A" 
+
+    return adjusted_predictions
+
 
