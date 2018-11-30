@@ -20,6 +20,10 @@ To run the system from the command line, enter
 ```
 SIS --path path/to/citations.xml
 ```
+alternatively, this will work
+```
+python -m SIS --path path/to/citations.xml
+```
 
 For example, if sample_citations.xml is in your current directory
 ```
@@ -29,7 +33,7 @@ will generate a set of predictions for the two citations in sample_citations.xml
 
 ### Command line options:
 As of version 0.0.1, 6 options are available. 
-```
+
 **--path** 
     Path to XML of citations for the system to classify. Include the file.xml in the path. 
     Do not include with --test or --validation
@@ -55,7 +59,6 @@ As of version 0.0.1, 6 options are available.
     Optional. Include to run system on 2018 test dataset. Do not include --path if
     --test included. 
 
-```
 If you forget your options input
 ```
 SIS --help
