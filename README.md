@@ -37,24 +37,29 @@ As of version 0.0.1, 6 options are available.
 **--path** 
     Path to XML of citations for the system to classify. Include the file.xml in the path. 
     Do not include with --test or --validation
+
 **--no-group-thresh**
     Optional. If included, the system will use the same threshold for all citations, 
     no matter the journal of origin. Without this flag, the system will use unique, 
     predetermined thresholds for citations from journals in the science or 
     jurisprudence category, improving system performance.
+
 **--no-journal-drop**
     Optional. If included, the models will use the same threshold for all citations, 
     no matter the journal of origin. Without this flag, the system will use unique, 
     predetermined thresholds for citations from journals in the science or 
     jurisprudence category, improving system performance.
+
 **--dest dir/for/results/** 
     Optional. Destination for predictions, or test results if --test or --validation are used. Defaults to 
     current directory. File names for predictions or test results are hardcoded, for now: 
     citation_predictions.txt if running system on a batch of citations; SIS_test_results.txt 
     if running on test or validation datasets.   
+
 **--validation** 
     Optional. Include to run system on 2018 validation dataset. Do not include --path if
     --validation included.  
+
 **--test**
     Optional. Include to run system on 2018 test dataset. Do not include --path if
     --test included. 
