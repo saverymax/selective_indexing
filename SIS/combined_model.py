@@ -1,6 +1,7 @@
 import numpy as np
 from pathlib import Path
 import time
+from pkg_resources import resource_string, resource_filename
 
 import keras.backend as K
 from keras.models import model_from_json
@@ -33,10 +34,8 @@ def run_CNN(X):
     """
 
     print("Making CNN predictions")
-    weights_path = ["selective_indexing_system", "models", "model_CNN_weights.hdf5"]
-    weights_path = Path.cwd().joinpath(*weights_path)
-    model_path = ["selective_indexing_system", "models", "model_CNN.json"]
-    model_path = Path.cwd().joinpath(*model_path)
+    model_path = resource_filename(__name__, "models/model_CNN.json")
+    weights_path = resource_filename(__name__, "models/model_CNN_weights.hdf5")
 
     with open(model_path, 'rt') as model_json_file:
         model_json = model_json_file.read()
@@ -54,8 +53,7 @@ def run_voting(X):
     """
 
     print("Making voting predictions")
-    model_path = ["selective_indexing_system", "models", "voting_recall_no_bad_journals_2017_data_model_tfidf_all_journals.joblib"]
-    model_path = Path.cwd().joinpath(*model_path)
+    model_path = resource_filename(__name__, "models/voting_recall_no_bad_journals_2017_data_model_tfidf_all_journals.joblib")
     model = joblib.load(model_path)
     y_probs = model.predict_proba(X)[:, 0]
 

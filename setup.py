@@ -1,0 +1,39 @@
+import setuptools
+
+with open("README.md", "r") as f:
+    long_description = f.read()
+
+setuptools.setup(
+        name="SIS",
+        version="0.0.1",
+        author="Max Savery",
+        author_email="savermax@gmail.com",
+        description="Selective Indexing System (SIS) for classification of MEDLINE citations",
+        long_description=long_description,
+        long_description_content_type="text/markdown",
+        url="https://github.com/saverymax/selective_indexing",
+        #packages=setuptools.find_packages(),
+        packages=["SIS"],
+        entry_points={
+            'console_scripts': [
+                "SIS=SIS.SIS:main"
+                ]},
+        classifiers=[
+            "Programming Language :: Python :: 3.7",
+            "Operating System :: Unix"
+            ],
+        install_requires=[
+            "numpy>=1.14.3",
+            "scipy>=1.1.0",
+            "scikit-learn==0.19.1",
+            "tensorflow-gpu==1.11.0",
+            "Keras==2.2.4"
+            ],
+        package_data={
+            'SIS': [
+                "models/*",
+                "SIS_tests/datasets/*"
+                ]},
+        #zip_safe=False
+        )
+
