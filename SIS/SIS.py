@@ -31,11 +31,11 @@ def get_args():
                         help="Destination directory for predictions or testing metrics. Will default to the current directory")
     parser.add_argument("--validation",
                         dest="validation",
-                        action="store_true")
+                        action="store_true",
                         help="If included, test the system on the validation dataset. Will output metrics to classification_predictions.txt")
     parser.add_argument("--test",
                         dest="test",
-                        action="store_true")
+                        action="store_true",
                         help="If included, test the system on the test dataset. Will output metrics to classification_predictions.txt")
 
     return parser

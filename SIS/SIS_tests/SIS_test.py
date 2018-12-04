@@ -1,28 +1,20 @@
 """
-Verify performance of system on test data
+Module for verification of performance of system on test or validation data
 """
 
 import json
 import argparse
-from sklearn.metrics import classification_report
+from math import isclose
+from sklearn.metrics import classification_report, precision_score, recall_score
 import datetime
+import pickle
 
 from ..combined_model import *
 from ..preprocess_CNN_data import get_batch_data 
 from .preprocess_voting_data_test import preprocess_data
-from .incongruous_citations import incongruous_citations
 from ..misindexed_journal_ids import misindexed_ids
 
-def remove_citations(citations):
-    """
-    Remove the 34 citations that were in Alistair's test
-    set that were not in mine
-    """
 
-    filtered_citations = [citation for citation in citations if citation['pmid'] not in incongruous_citations] 
-
-    return filtered_citations
-        
 def parse_test_citations(XML_path):
     """
     Parse the test citations 
@@ -33,6 +25,7 @@ def parse_test_citations(XML_path):
         citations_json = json.load(f) 
 
     return citations_json
+
 
 def drop_test_predictions(prediction_dict, adjusted_predictions, labels):
     """
@@ -49,7 +42,25 @@ def drop_test_predictions(prediction_dict, adjusted_predictions, labels):
             filtered_predictions.append(adjusted_predictions[i])
 
     return filtered_labels, filtered_predictions
-    
+
+
+def evaluate_individual_models(cnn_predictions, voting_predictions, labels):
+    """
+    Evaluate the performance on the CNN and voting
+    ensemble, using the validation or test data sets. 
+    Returns precision and recall for each model.
+    """
+
+    adj_voting_preds = [1 if y >= .04 else 0 for y in voting_predictions]
+    adj_cnn_preds = [1 if y >= .02 else 0 for y in cnn_predictions]
+    voting_precision = precision_score(labels, adj_voting_preds)
+    voting_recall = recall_score(labels, adj_voting_preds)
+    cnn_precision = precision_score(labels, adj_cnn_preds)
+    cnn_recall = recall_score(labels, adj_cnn_preds)
+
+    return cnn_recall, cnn_precision, voting_recall, voting_precision
+
+
 def SIS_test_main(
         dataset, journal_ids_path, word_indicies_path, 
         group_thresh, journal_drop, destination):
@@ -64,7 +75,6 @@ def SIS_test_main(
         XML_path = resource_filename(__name__, "datasets/pipeline_test_set")
 
     citations = parse_test_citations(XML_path) 
-    citations = remove_citations(citations)
     voting_citations, journal_ids, labels = preprocess_data(citations)
     voting_predictions = run_voting(voting_citations)
     CNN_citations = get_batch_data(citations, journal_ids_path, word_indicies_path)
@@ -75,6 +85,36 @@ def SIS_test_main(
     if journal_drop:
         labels, adjusted_predictions = drop_test_predictions(prediction_dict, adjusted_predictions, labels)
     
+    cnn_recall, cnn_precision, voting_recall, voting_precision = evaluate_individual_models(cnn_predictions, voting_predictions, labels)
+    SIS_recall = recall_score(labels, adjusted_predictions)
+    SIS_precision = precision_score(labels, adjusted_predictions)
+
+    if not group_thresh and not journal_drop:
+        if dataset == "validation":
+            assert isclose(cnn_recall, .9964, abs_tol=1e-4), "CNN recall does not match expected value"
+            assert isclose(cnn_precision, .3312, abs_tol=1e-4), "CNN precision does not match expected value"
+            assert isclose(voting_recall, .9956, abs_tol=1e-4), "Voting recall does not match expected value"
+            assert isclose(voting_precision, .2899, abs_tol=1e-4), "Voting precision does not match expected value"
+            assert isclose(SIS_recall, .9949, abs_tol=1e-4), "SIS recall does not match expected value"
+            assert isclose(SIS_precision, .3897, abs_tol=1e-4), "SIS precision does not match expected value"
+            print("Assertions passed")
+        else:
+            assert isclose(cnn_recall, .9948, abs_tol=1e-4), "CNN recall does not match expected value" 
+            assert isclose(cnn_precision, .3254, abs_tol=1e-4), "CNN precision does not match expected value"
+            assert isclose(voting_recall, .9927, abs_tol=1e-4), "Voting recall does not match expected value"
+            assert isclose(voting_precision, .2845, abs_tol=1e-4), "Voting precision does not match expected value"
+            assert isclose(SIS_recall, .9923, abs_tol=1e-4), "SIS recall does not match expected value"
+            assert isclose(SIS_precision, .3845, abs_tol=1e-4), "SIS precision does not match expected value"
+            print("Assertions passed")
+
     results_path = "{}/SIS_test_results.txt".format(destination)
     with open(results_path, "a") as f:
-        f.write("\n{0} set\n{1}\n{2}\n".format(dataset, datetime.datetime.now(), classification_report(labels, adjusted_predictions)))
+        f.write("""\n{0}\n{1} set\nSIS recall: {2}\nSIS precision: {3}\nVoting recall: {4}\nVoting precision: {5}\nCNN recall: {6}\nCNN precision: {7}\n""".format(
+            datetime.datetime.now(), 
+            dataset, 
+            SIS_recall,
+            SIS_precision,
+            voting_recall,
+            voting_precision,
+            cnn_recall,
+            cnn_precision))

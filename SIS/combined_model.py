@@ -15,19 +15,6 @@ from .embedding_custom import EmbeddingWithDropout
 from .group_ids import science, jurisprudence
 from . import item_select
 
-def get_args():
-    """
-    Get command line arguments
-    """
-    parser.add_argument("-e",
-                        default="Run trained voting model",
-                        dest="experiment",
-                        help="Input details of experiment")
-    parser.add_argument("-f",
-                        dest="predictions_file",
-                        help="Input title of csv in which predictions will be saved")
-    return parser
-
 def run_CNN(X):
     """
     load the CNN and return predictions
@@ -53,7 +40,7 @@ def run_voting(X):
     """
 
     print("Making voting predictions")
-    model_path = resource_filename(__name__, "models/voting_recall_no_bad_journals_2017_data_model_tfidf_all_journals.joblib")
+    model_path = resource_filename(__name__, "models/voting_recall_no_bad_journals_ONLY_2017.joblib")
     model = joblib.load(model_path)
     y_probs = model.predict_proba(X)[:, 0]
 
@@ -65,7 +52,7 @@ def adjust_thresholds(predictions_dict, group_thresh=True):
     """
 
     print("Combining predictions")
-    COMBINED_THRESH = .0045
+    COMBINED_THRESH = .0018
     SCIENCE_THRESH = .02 
     JURISPRUDENCE_THRESH = .1 
     

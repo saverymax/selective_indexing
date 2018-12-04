@@ -13,19 +13,20 @@ Assuming you have downloaded the .whl file, just enter the command below to inst
 pip install SIS-0.*.*-py3-none-any.whl
 ```
 If all goes well, you have now installed the Selective Indexing System (SIS). Congratulations!
+SIS has been added to PATH, and is executable from the command line. 
 
 ## Usage
 
 To run the system from the command line, enter
 ```
-SIS --path path/to/citations.xml
+SIS --path path/to/some_citations.xml
 ```
 alternatively, this will work
 ```
-python -m SIS --path path/to/citations.xml
+python -m SIS --path path/to/some_citations.xml
 ```
 
-For example, if sample_citations.xml is in your current directory
+For example, if sample_citations.xml is in your current directory, running
 ```
 SIS --path sample_citations.xml
 ```
@@ -64,7 +65,7 @@ As of version 0.0.1, 6 options are available.
     Optional. Include to run system on 2018 test dataset. Do not include --path if
     --test included. 
 
-If you forget your options input
+If you forget your options, input
 ```
 SIS --help
 ```
@@ -76,12 +77,29 @@ Usage of --validation and --test will be explained below
 To measure performance of the system, a validation and test dataset is included with the SIS
 package. To run the models on these datasets, include the --validation or --test option
 as shown in the example below. Input one or the other, not both. 
+
+For example:
 ```
-SIS --validation
+SIS --validation --validation --dest path/to/output/
 ```
-This will output a classification report into a file SIS_test_results.txt, either in your current directory, 
-or an optional specified directory. It is not necessary to include the --path option when running these tests. 
-The expected output for the test above is 
+This will output a performance report into a file SIS_test_results.txt in the output directory. 
+It is not necessary to include the --path option when running these tests. 
+
+Once the program is installed run both of the following commands: 
+```
+SIS --validation --no-journal-drop --no-group-thresh
+```
+or
+```
+SIS --test --no-journal-drop --no-group-thresh
+```
+If both --no-journal-drop and --no-group-thresh are included, a set of assertions 
+will be tested the model's performance. If the assertions are passed,
+you can be fairly confident that SIS has been installed correctly and is ready for 
+further use.
+
+Happy indexing.
+
 
 
 
