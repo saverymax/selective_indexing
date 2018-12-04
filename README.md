@@ -80,7 +80,7 @@ as shown in the example below. Input one or the other, not both.
 
 For example:
 ```
-SIS --validation --validation --dest path/to/output/
+SIS --validation --dest path/to/output/
 ```
 This will output a performance report into a file SIS_test_results.txt in the output directory. 
 It is not necessary to include the --path option when running these tests. 
@@ -89,7 +89,7 @@ Once the program is installed run both of the following commands:
 ```
 SIS --validation --no-journal-drop --no-group-thresh
 ```
-or
+and
 ```
 SIS --test --no-journal-drop --no-group-thresh
 ```
