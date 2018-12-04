@@ -74,7 +74,7 @@ and you'll get a little help.
 Usage of --validation and --test will be explained below
 
 ## Testing
-To measure performance of the system, a validation and test dataset is included with the SIS
+To measure performance of the system, validation and test datasets are included with the SIS
 package. To run the models on these datasets, include the --validation or --test option
 as shown in the example below. Input one or the other, not both. 
 
