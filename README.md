@@ -1,6 +1,6 @@
-# Selective indexing classification system
+# Selective Indexing System (SIS)
 
-This repository contains the source code for combination of 
+This repository contains the source code for the combination of 
 a CNN and voting ensemble in the prediction of citations requiring
 MeSH indexing
 
