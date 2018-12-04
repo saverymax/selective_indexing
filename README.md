@@ -6,7 +6,7 @@ MeSH indexing
 
 ## Installation
 
-Is anaconda installed? Is python > 3.5 installed? If so, then you are good to go. 
+Is anaconda installed? Is python >= 3.5 installed? If so, then you are good to go. 
 
 Assuming you have downloaded the .whl file, just enter the command below to install, in the same directory as the .whl file.  
 ```
