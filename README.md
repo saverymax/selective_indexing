@@ -8,7 +8,7 @@ MeSH indexing
 
 Is anaconda installed? Is python >= 3.5 installed? If so, then you are good to go. 
 
-Assuming you have downloaded the .whl file, just enter the command below to install, in the same directory as the .whl file.  
+Assuming you have downloaded the .whl file, navigate to the directory where it lives and enter the command below to install.
 ```
 pip install SIS-0.*.*-py3-none-any.whl
 ```
