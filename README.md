@@ -15,7 +15,7 @@ pip install SIS-0.*.*-py3-none-any.whl
 If all goes well, you have now installed the Selective Indexing System (SIS). Congratulations!
 SIS has been added to PATH, and is executable from the command line. 
 
-If you should for some strange reason want to uninstall the package, enter
+If you should, for some strange reason, want to uninstall the package, enter
 ```
 pip uninstall SIS
 ```
