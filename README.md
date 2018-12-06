@@ -15,6 +15,11 @@ pip install SIS-0.*.*-py3-none-any.whl
 If all goes well, you have now installed the Selective Indexing System (SIS). Congratulations!
 SIS has been added to PATH, and is executable from the command line. 
 
+If you should for some strange reason want to uninstall the package, enter
+```
+pip uninstall SIS
+```
+
 ## Usage
 
 To run the system from the command line, enter
@@ -59,11 +64,11 @@ As of version 0.0.1, 6 options are available.
 
 **--validation** 
     Optional. Include to run system on 2018 validation dataset. Do not include --path if
-    --validation included.  
+    --test included.  
 
 **--test**
     Optional. Include to run system on 2018 test dataset. Do not include --path if
-    --test included. 
+    --valiation included. 
 
 If you forget your options, input
 ```
@@ -82,7 +87,7 @@ For example:
 ```
 SIS --validation --dest path/to/output/
 ```
-This will output a performance report into a file SIS_test_results.txt in the output directory. 
+This will output a performance report into the file SIS_test_results.txt in the output directory. 
 It is not necessary to include the --path option when running these tests. 
 
 Once the program is installed run both of the following commands: 
@@ -93,8 +98,8 @@ and
 ```
 SIS --test --no-journal-drop --no-group-thresh
 ```
-If both --no-journal-drop and --no-group-thresh are included, a set of assertions 
-will be tested the model's performance. If the assertions are passed,
+If --no-journal-drop and --no-group-thresh are included, a set of assertions 
+will be tested on the model's performance. If the assertions are passed,
 you can be fairly confident that SIS has been installed correctly and is ready for 
 further use.
 
