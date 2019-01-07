@@ -9,7 +9,7 @@ MeSH indexing
 Is anaconda installed? Is python 3.6 installed? If so, then you are good to go. Skip to section installation.ii.
 If you do not have anaconda, miniconda, or python installed, follow the instructions in installation.i.
 
-###i
+### i
 Here are instructions to install miniconda, a lightweight version of anaconda. In installing miniconda, python and 
 all standard libraries are included.
 
@@ -39,9 +39,9 @@ python --version
 
 If python == 3.6, continue on to section ii. If not, return to go.
 
-###ii
+### ii
 
-Assuming you have downloaded the .whl file, navigate to the directory where it lives and enter the command below to install.
+Alright, assuming you have downloaded the .whl file for the SIS package, navigate to the directory where it lives and enter the command below to install.
 ```
 pip install SIS-0.*.*-py3-none-any.whl
 ```
