@@ -6,7 +6,40 @@ MeSH indexing
 
 ## Installation
 
-Is anaconda installed? Is python >= 3.5 installed? If so, then you are good to go. 
+Is anaconda installed? Is python 3.6 installed? If so, then you are good to go. Skip to section installation.ii.
+If you do not have anaconda, miniconda, or python installed, follow the instructions in installation.i.
+
+###i
+Here are instructions to install miniconda, a lightweight version of anaconda. In installing miniconda, python and 
+all standard libraries are included.
+
+First, download the miniconda installer:
+```
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+```
+
+Then run the bash installer you just downloaded. 
+```
+bash Miniconda3-latest-Linux-x86_64.sh
+```
+Agree to the demands it makes, and make sure to enter yes when it asks to add the miniconda path to the .bashrc
+
+Remember to restart the terminal. Don't worry, we're almost done... 
+
+Unfortunately python 3.7 is not compatible with tensorflow, and since
+the latest miniconda comes with python 3.7, we will have to downgrade. Fortunately, this is easy:
+```
+conda install python=3.6
+```
+
+Finally, check your python version. 
+```
+python --version
+```
+
+If python == 3.6, continue on to section ii. If not, return to go.
+
+###ii
 
 Assuming you have downloaded the .whl file, navigate to the directory where it lives and enter the command below to install.
 ```
