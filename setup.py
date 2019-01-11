@@ -12,7 +12,7 @@ setuptools.setup(
         long_description=long_description,
         long_description_content_type="text/markdown",
         url="https://github.com/saverymax/selective_indexing",
-        packages=["SIS"],
+        packages=["SIS", "SIS.SIS_tests"],
         entry_points={
             'console_scripts': [
                 "SIS=SIS.SIS:main"
@@ -32,6 +32,7 @@ setuptools.setup(
             ],
         package_data={
             'SIS': [
+                ".",
                 "models/*",
                 "SIS_tests/datasets/*"
                 ]},

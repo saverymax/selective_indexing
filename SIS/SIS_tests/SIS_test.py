@@ -83,11 +83,13 @@ def SIS_test_main(
     prediction_dict = {'predictions': combined_predictions, 'journal_ids': journal_ids}
     adjusted_predictions = adjust_thresholds(prediction_dict, group_thresh) 
     if journal_drop:
-        labels, adjusted_predictions = drop_test_predictions(prediction_dict, adjusted_predictions, labels)
-    
+        adjusted_labels, adjusted_predictions = drop_test_predictions(prediction_dict, adjusted_predictions, labels)
+    else:
+        adjusted_labels = labels
+
     cnn_recall, cnn_precision, voting_recall, voting_precision = evaluate_individual_models(cnn_predictions, voting_predictions, labels)
-    SIS_recall = recall_score(labels, adjusted_predictions)
-    SIS_precision = precision_score(labels, adjusted_predictions)
+    SIS_recall = recall_score(adjusted_labels, adjusted_predictions)
+    SIS_precision = precision_score(adjusted_labels, adjusted_predictions)
 
     if not group_thresh and not journal_drop:
         if dataset == "validation":

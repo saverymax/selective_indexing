@@ -15,6 +15,7 @@ from .embedding_custom import EmbeddingWithDropout
 from .group_ids import science, jurisprudence
 from . import item_select
 
+
 def run_CNN(X):
     """
     load the CNN and return predictions
@@ -34,6 +35,7 @@ def run_CNN(X):
 
     return result
 
+
 def run_voting(X):
     """
     Run the voting model
@@ -45,6 +47,7 @@ def run_voting(X):
     y_probs = model.predict_proba(X)[:, 0]
 
     return y_probs
+
 
 def adjust_thresholds(predictions_dict, group_thresh=True):
     """
@@ -70,12 +73,27 @@ def adjust_thresholds(predictions_dict, group_thresh=True):
                 predictions.append(1 if y>= COMBINED_THRESH else 0)
         return predictions
 
+
 def combine_predictions(voting_predictions, cnn_predictions):
     """
     Combine the predictions of the two models
     """
 
     return voting_predictions*cnn_predictions
+
+
+def convert_predictions(prediction_dict, adjusted_predictions, selectively_indexed_ids):
+    """
+    If citation is from non-selectively indexed
+    journal, convert prediction to N/A
+    """
+
+    for i, journal_id in enumerate(prediction_dict['journal_ids']):
+        if journal_id not in selectively_indexed_ids:
+            adjusted_predictions[i] = "N/A" 
+
+    return adjusted_predictions
+
 
 def drop_predictions(prediction_dict, adjusted_predictions, misindexed_ids):
     """

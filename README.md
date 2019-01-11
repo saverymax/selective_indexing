@@ -48,6 +48,16 @@ pip install SIS-0.*.*-py3-none-any.whl
 If all goes well, you have now installed the Selective Indexing System (SIS). Congratulations!
 SIS has been added to PATH, and is executable from the command line. 
 
+Currently the text is tokenized with the NLTK tokenizer. 
+NLTK requires you install it separately. Once you do this once,
+you don't have to worry about it again, even if you uninstall and 
+reinstall SIS.
+``` 
+python -m nltk.downloader punkt
+```
+
+That's it for the install! 
+
 If you should, for some strange reason, want to uninstall the package, enter
 ```
 pip uninstall SIS
@@ -70,8 +80,20 @@ SIS --path sample_citations.xml
 ```
 will generate a set of predictions for the two citations in sample_citations.xml
 
+The system will iterate through the citations, and make predictions 
+for each citation published by a selectively indexed journal recommended as important. 
+It is also possible to make predictions for all citations if --predict-all is provided.
+The prediction results can be found in the citation_predictions.txt output file, which will by default
+be saved in your current directory. Each prediction is printed on a line, and the format is 
+pmid|binary prediction|probability. 
+
+For journals that have, in the past, been misindexed and are among those that
+we have show to significantly detract from performance, N/A will
+be printed in place of a binary prediction. N/A wil also used case if --predict-all is not included 
+and the system encounters a citation from a non-selectively indexed journal. 
+
 ### Command line options:
-As of version 0.0.1, 6 options are available. 
+As of version 0.1.1, 7 options are available. 
 
 **--path** 
     Path to XML of citations for the system to classify. Include the file.xml in the path. 
@@ -101,7 +123,9 @@ As of version 0.0.1, 6 options are available.
 
 **--test**
     Optional. Include to run system on 2018 test dataset. Do not include --path if
-    --valiation included. 
+    --validation included. 
+
+**--predict_all**
 
 If you forget your options, input
 ```
