@@ -6,7 +6,6 @@ from .combined_model import *
 from .daily_update_file_parser import parse_update_file
 from .preprocess_CNN_data import get_batch_data 
 from .preprocess_voting_data import preprocess_data
-from .misindexed_journal_ids import misindexed_ids
 from .SIS_tests.SIS_test import SIS_test_main
 
 def get_args():
@@ -38,10 +37,10 @@ def get_args():
                         dest="test",
                         action="store_true",
                         help="If included, test the system on the test dataset. Will output metrics to SIS_test_results.txt")
-    parser.add_argument("--predict_all",
-                        dest="predict_all",
+    parser.add_argument("--predict-medline",
+                        dest="predict_medline",
                         action="store_true",
-                        help="If included, the system will make predictions for all citations. By default, it will only make predictions for citations from selectively indexed journals that have been suggested to be important")
+                        help="If included, the system will make predictions for all citations.  If not included, it will only make predictions for citations from selectively indexed journals that have been suggested to be important")
 
     return parser
 
@@ -65,14 +64,14 @@ def main():
     journal_ids_path = resource_filename(__name__, "models/journal_ids.txt")
     word_indicies_path = resource_filename(__name__, "models/word_indices.txt")
     
-    selectively_indexed_id_path = resource_filename(__name__, "nlm_id_mapping.json")
+    selectively_indexed_id_path = resource_filename(__name__, "selectively_indexed_id_mapping.json")
     with open(selectively_indexed_id_path, "r") as f:
         selectively_indexed_ids = json.load(f)
 
     group_thresh = args.group_thresh
     journal_drop = args.journal_drop
     destination = args.destination
-    predict_all = args.predict_all
+    predict_medline = args.predict_medline
 
     # Run system on test or validation set if specified
     if args.test or args.validation:
@@ -84,7 +83,8 @@ def main():
     #Otherwise run on batch of citations
     else:
         XML_path = args.path
-        citations = parse_update_file(XML_path) 
+        # All dropping options are considered in parse_update_file
+        citations = parse_update_file(XML_path, journal_drop, predict_medline, selectively_indexed_ids) 
         voting_citations, journal_ids, pmids = preprocess_data(citations)
         voting_predictions = run_voting(voting_citations)
         CNN_citations = get_batch_data(citations, journal_ids_path, word_indicies_path)
@@ -92,11 +92,6 @@ def main():
         combined_predictions = combine_predictions(voting_predictions, cnn_predictions)
         prediction_dict = {'predictions': combined_predictions, 'journal_ids': journal_ids}
         adjusted_predictions = adjust_thresholds(prediction_dict, group_thresh) 
-        # Convert predictions for citations from misindexed journals if no-journal-drop not included 
-        if not predict_all:
-            adjusted_predictions = convert_predictions(prediction_dict, adjusted_predictions, selectively_indexed_ids)
-        if journal_drop:
-            adjusted_predictions = drop_predictions(prediction_dict, adjusted_predictions, misindexed_ids)
         save_predictions(adjusted_predictions, prediction_dict, pmids, destination)
 
 

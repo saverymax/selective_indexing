@@ -51,8 +51,11 @@ def evaluate_individual_models(cnn_predictions, voting_predictions, labels):
     Returns precision and recall for each model.
     """
 
-    adj_voting_preds = [1 if y >= .04 else 0 for y in voting_predictions]
-    adj_cnn_preds = [1 if y >= .02 else 0 for y in cnn_predictions]
+    cnn_thresh = .02
+    voting_thresh = .04
+
+    adj_voting_preds = [1 if y >= voting_thresh else 0 for y in voting_predictions]
+    adj_cnn_preds = [1 if y >= cnn_thresh else 0 for y in cnn_predictions]
     voting_precision = precision_score(labels, adj_voting_preds)
     voting_recall = recall_score(labels, adj_voting_preds)
     cnn_precision = precision_score(labels, adj_cnn_preds)
@@ -111,12 +114,17 @@ def SIS_test_main(
 
     results_path = "{}/SIS_test_results.txt".format(destination)
     with open(results_path, "a") as f:
-        f.write("""\n{0}\n{1} set\nSIS recall: {2}\nSIS precision: {3}\nVoting recall: {4}\nVoting precision: {5}\nCNN recall: {6}\nCNN precision: {7}\n""".format(
-            datetime.datetime.now(), 
-            dataset, 
-            SIS_recall,
-            SIS_precision,
-            voting_recall,
-            voting_precision,
-            cnn_recall,
-            cnn_precision))
+        f.write("""\n\n{0}\nDataset: {1}\n--no-journal-drop: {2}\n--no-group-thresh {3}\n""".format(
+                    datetime.datetime.now(), 
+                    dataset,
+                    journal_drop,
+                    group_thresh
+                    ))
+
+        f.write("""SIS recall: {0}\nSIS precision: {1}\nVoting recall: {2}\nVoting precision: {3}\nCNN recall: {4}\nCNN precision: {5}\n""".format(
+                    SIS_recall,
+                    SIS_precision,
+                    voting_recall,
+                    voting_precision,
+                    cnn_recall,
+                    cnn_precision))

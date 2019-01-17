@@ -6,17 +6,47 @@ from dateutil.parser import parse
 import re
 import xml.etree.ElementTree as ET
 
+from .misindexed_journal_ids import misindexed_ids
 
-def parse_update_file(path):
+def parse_update_file(path, journal_drop, predict_medline, selectively_indexed_ids):
+    """
+    Main parsing function that
+    calls private functions within module. 
+    Will return list of dictionaries, 
+    each dictionary containing citation data
+    """
+
     with open(path, 'rt', encoding='utf8') as _file:
         citations = []
         root_node = ET.parse(_file)
         for medline_citation_node in root_node.findall('PubmedArticle/MedlineCitation'):
             citation_data = _extract_citation_data(medline_citation_node)
-            if _should_process(citation_data):
-                citation_dict = _construct_citation_dict(citation_data)
-                citations.append(citation_dict)
-        return citations    
+            # Make predictions for only selectively indexed journals 
+            # that do not have a MEDLINE and PubMed-not-MEDLINE status yet
+            # Citations that do not meet this criteria will not be processed
+            # nor will citations from misindexed journals if 
+            # --no-journal-drop is included
+            if not predict_medline and (citation_data[6] != "MEDLINE" and citation_data[6] != "PubMed-not-MEDLINE"):
+                if citation_data[4] in selectively_indexed_ids:
+                    if journal_drop:
+                        if citation_data[4] not in misindexed_ids: 
+                            citation_dict = _construct_citation_dict(citation_data)
+                            citations.append(citation_dict)
+                    elif not journal_drop:
+                        citation_dict = _construct_citation_dict(citation_data)
+                        citations.append(citation_dict)
+            # Otherwise, make predictions for citations not
+            # from selectively indexed journals 
+            # that HAVE a MEDLINE status
+            # Citations that do not meet this criteria not be processed
+            # This option is exclusively for running on everything not selectively indexed,
+            # therefore the option --no-journal-drop has no effect
+            elif predict_medline and citation_data[6] == "MEDLINE":
+                if citation_data[4] not in selectively_indexed_ids:
+                    citation_dict = _construct_citation_dict(citation_data)
+                    citations.append(citation_dict)
+
+    return citations    
 
     
 def _construct_citation_dict(citation_data):
@@ -94,11 +124,3 @@ def _extract_year_from_medlinedate(medlinedate_text):
             except ValueError:
                 pub_year = None
     return pub_year
-
-
-def _should_process(citation_data):
-    should_process = True # TODO may only want to process certain citation status
-    return should_process
-    
-
-        
