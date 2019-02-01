@@ -90,7 +90,7 @@ will generate a set of predictions for the two citations in sample_citations.xml
 By default, the system will iterate through the citations, and make predictions 
 for each citation published by a selectively indexed journal recommended as important,
 that does not have a status of MEDLINE or PubMed-not-MEDLINE. 
-The prediction results can be found in the citation_predictions.txt output file, which will by default
+The prediction results can be found in the citation_predictions_YYYY-DD-MM.txt output file, which will by default
 be saved in your current directory. Each prediction is printed on a line, and the format is 
 pmid|binary prediction|probability. 
 
@@ -104,23 +104,18 @@ As of version 0.1.1, 7 options are available.
     Path to XML of citations for the system to classify. Include the file.xml in the path. 
     Do not include with --test or --validation
 
-**--no-group-thresh**
-    Optional. If included, the system will use the same threshold for all citations, 
-    no matter the journal of origin. Without this flag, the system will use unique, 
-    predetermined thresholds for citations from journals in the science or 
-    jurisprudence category, improving system performance. 
+**--group-thresh**
+    Optional. If included, the system will use the unique, 
+    predetermined thresholds for citations from journals in the science or jurisprudence category. Originally, this was intended to improve performance; however, it was shown to be difficult to apply a threshold chosen on the validation set to the test set.
 
 **--no-journal-drop**
-    Optional. If included, the models will use the same threshold for all citations, 
-    no matter the journal of origin. Without this flag, the system will use unique, 
-    predetermined thresholds for citations from journals in the science or 
-    jurisprudence category, improving system performance. Important to note, 
-    is that this option only has an effect when --predict-medline is not included.
+    Optional. By defualt the system does not make predictions for a small set of journals previously misindexed. This has been shown to improve system performance. To make predictions all citations, including those from these journals, include this option. 
+    Important to note, this option only has an effect when --predict-medline is not included.
 
 **--dest dir/for/results/** 
     Optional. Destination for predictions, or test results if --test or --validation are used. Defaults to 
     current directory. File names for predictions or test results are hardcoded, for now: 
-    citation_predictions.txt if running system on a batch of citations; SIS_test_results.txt 
+    citation_predictions_YYYY-DD-MM.txt if running system on a batch of citations; SIS_test_results.txt 
     if running on test or validation datasets.   
 
 **--validation** 
@@ -132,7 +127,7 @@ As of version 0.1.1, 7 options are available.
     --validation included. 
 
 **--predict_medline**
-    Optional. If included, the system will make predictions for 
+    Optional. New in version 0.1.1. If included, the system will make predictions for 
     ONLY non-selectively indexed journals, with ONLY MEDLINE statuses. 
     Important to note, is that without this option, 
     the system only makes predictions for selectively 
@@ -166,9 +161,7 @@ It is not necessary to include the --path option when running these tests.
 For a given test the following information is appended to the SIS_test_results.txt file:
 
 Date
-validation or test data
---no-journal-drop True/False (if not provided, defaults to True, meaning journals are be dropped)
---no-group-thresh True/False (if not provided, defaults to True, meaning threshold for science and jurisprudence groups will be used)
+All command line keywords and values
 SIS recall
 SIS precision
 Voting recall
@@ -178,16 +171,23 @@ CNN precision
 
 Once the program is installed run both of the following commands: 
 ```
-SIS --validation --no-journal-drop --no-group-thresh
+SIS --validation --no-journal-drop 
 ```
 and
 ```
-SIS --test --no-journal-drop --no-group-thresh
+SIS --test --no-journal-drop 
 ```
-If --no-journal-drop and --no-group-thresh are included, a set of assertions 
+If --no-journal-drop is included, a set of assertions 
 will be tested on the model's performance. If the assertions are passed,
 you can be fairly confident that SIS has been installed correctly and is ready for 
 further use.
+
+Further functional testing can be performed using the pytest package.
+```
+pip install pytest
+pytest --pyargs SIS
+```
+This will run a set of unittests.
 
 Happy indexing.
 
