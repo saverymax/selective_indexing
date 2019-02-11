@@ -45,11 +45,11 @@ If python == 3.6, continue on to section ii. If not, return to go, and maybe ema
 To download the .whl file for the SIS package, either click on the release button that should be somewhere up and to the right on github,
 or follow this link: https://github.com/saverymax/selective_indexing/releases
 
-Under Assets, click on the SIS-*.*.*-py3-none-any.whl link to download, and we can get started with the installation. 
+Under Assets, click on the SIS-0.1.1-py3-none-any.whl link to download, and we can get started with the installation. 
 
 Assuming you have downloaded the .whl file for the SIS package, navigate to the directory where it lives via shell and enter the command below to install.
 ```
-pip install SIS-*.*.*-py3-none-any.whl
+pip install SIS-0.1.1-py3-none-any.whl
 ```
 If all goes well, you have now installed the Selective Indexing System (SIS). Congratulations!
 SIS has been added to PATH, and is executable from the command line. 
