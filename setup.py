@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
         name="SIS",
-        version="0.1.1a",
+        version="0.1.1",
         author="Max Savery",
         author_email="savermax@gmail.com",
         description="Selective Indexing System (SIS) for classification of MEDLINE citations",
@@ -24,7 +24,7 @@ setuptools.setup(
         install_requires=[
             "numpy>=1.14.3",
             "scipy>=1.1.0",
-            "scikit-learn==0.19.1",
+            "scikit-learn==0.20.2",
             "tensorflow==1.11.0",
             "Keras==2.2.4",
             "python-dateutil",
@@ -33,6 +33,7 @@ setuptools.setup(
         package_data={
             'SIS': [
                 "./selectively_indexed_id_mapping.json",
+                "./group_ids.json",
                 "models/*",
                 "SIS_tests/datasets/*"
                 ]},

@@ -13,6 +13,7 @@ from sklearn.metrics import classification_report
 
 from .embedding_custom import EmbeddingWithDropout
 from .group_ids import science, jurisprudence
+from .thresholds import *
 from . import item_select
 
 
@@ -42,7 +43,7 @@ def run_voting(X):
     """
 
     print("Making voting predictions")
-    model_path = resource_filename(__name__, "models/voting_recall_no_bad_journals_ONLY_2017.joblib")
+    model_path = resource_filename(__name__, "models/voting_fbeta2_2017_ONLY_model.joblib")
     model = joblib.load(model_path)
     y_probs = model.predict_proba(X)[:, 0]
 
@@ -55,9 +56,6 @@ def adjust_thresholds(predictions_dict, group_thresh=True):
     """
 
     print("Combining predictions")
-    COMBINED_THRESH = .0018
-    SCIENCE_THRESH = .02 
-    JURISPRUDENCE_THRESH = .1 
     
     if not group_thresh:
         return [1 if y >= COMBINED_THRESH else 0 for y in predictions_dict['predictions']]

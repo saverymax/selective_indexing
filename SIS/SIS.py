@@ -1,5 +1,6 @@
 import argparse
 import json
+import datetime
 from pkg_resources import resource_string
 
 from .combined_model import *
@@ -17,10 +18,10 @@ def get_args():
     parser.add_argument("--path",
                         dest="path",
                         help="Path to XML containing batch of citations")
-    parser.add_argument("--no-group-thresh",
+    parser.add_argument("--group-thresh",
                         dest="group_thresh",
-                        action="store_false",
-                        help="If included, do not use predetermined threshold for science and jurisprudence groups. General threshold will be used instead")
+                        action="store_true",
+                        help="If included, use predetermined threshold for science and jurisprudence groups. Default is to not use these group thresholds, as they have been shown hard to predict.")
     parser.add_argument("--no-journal-drop",
                         dest="journal_drop",
                         action="store_false",
@@ -50,7 +51,7 @@ def save_predictions(adjusted_predictions, prediction_dict, pmids, destination):
     pmid|binary prediction|probability
     """
     
-    with open("{}/citation_predictions.txt".format(destination), "w") as f:
+    with open("{0}/citation_predictions_{1}.txt".format(destination, datetime.datetime.today().strftime('%Y-%m-%d')), "w") as f:
         for i, prediction in enumerate(adjusted_predictions):
             f.write("{0}|{1}|{2}\n".format(pmids[i], prediction, prediction_dict['predictions'][i]))
 
@@ -67,6 +68,10 @@ def main():
     selectively_indexed_id_path = resource_filename(__name__, "selectively_indexed_id_mapping.json")
     with open(selectively_indexed_id_path, "r") as f:
         selectively_indexed_ids = json.load(f)
+ 
+    group_id_path = resource_filename(__name__, "group_ids.json") 
+    with open(group_id_path, "r") as f:
+        group_ids = json.load(f)
 
     group_thresh = args.group_thresh
     journal_drop = args.journal_drop
@@ -74,11 +79,12 @@ def main():
     predict_medline = args.predict_medline
 
     # Run system on test or validation set if specified
+    # Predict MEDLINE has no effect
     if args.test or args.validation:
         dataset = "test" if args.test else "validation"
         SIS_test_main(
             dataset, journal_ids_path, word_indicies_path, 
-            group_thresh, journal_drop, destination)
+            group_thresh, journal_drop, destination, group_ids, args)
 
     #Otherwise run on batch of citations
     else:

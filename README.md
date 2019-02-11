@@ -45,11 +45,11 @@ If python == 3.6, continue on to section ii. If not, return to go, and maybe ema
 To download the .whl file for the SIS package, either click on the release button that should be somewhere up and to the right on github,
 or follow this link: https://github.com/saverymax/selective_indexing/releases
 
-Under Assets, click on the SIS-0.0.1-py3-none-any.whl link to download, and we can get started with the installation. 
+Under Assets, click on the SIS-*.*.*-py3-none-any.whl link to download, and we can get started with the installation. 
 
 Assuming you have downloaded the .whl file for the SIS package, navigate to the directory where it lives via shell and enter the command below to install.
 ```
-pip install SIS-0.*.*-py3-none-any.whl
+pip install SIS-*.*.*-py3-none-any.whl
 ```
 If all goes well, you have now installed the Selective Indexing System (SIS). Congratulations!
 SIS has been added to PATH, and is executable from the command line. 
@@ -76,11 +76,6 @@ To run the system from the command line, enter
 ```
 SIS --path path/to/some_citations.xml
 ```
-alternatively, this will work
-```
-python -m SIS --path path/to/some_citations.xml
-```
-
 For example, if sample_citations.xml is in your current directory, running
 ```
 SIS --path sample_citations.xml
@@ -101,42 +96,42 @@ we have shown to significantly detract from performance, no prediction will be p
 As of version 0.1.1, 7 options are available. 
 
 **--path** 
-    Path to XML of citations for the system to classify. Include the file.xml in the path. 
+    \nPath to XML of citations for the system to classify. Include the file.xml in the path. 
     Do not include with --test or --validation
 
 **--group-thresh**
-    Optional. If included, the system will use the unique, 
+    \nOptional. If included, the system will use the unique, 
     predetermined thresholds for citations from journals in the science or jurisprudence category. Originally, this was intended to improve performance; however, it was shown to be difficult to apply a threshold chosen on the validation set to the test set.
 
 **--no-journal-drop**
-    Optional. By defualt the system does not make predictions for a small set of journals previously misindexed. This has been shown to improve system performance. To make predictions all citations, including those from these journals, include this option. 
+    \nOptional. By defualt the system does not make predictions for a small set of journals previously misindexed. This has been shown to improve system performance. To make predictions all citations, including those from these journals, include this option. 
     Important to note, this option only has an effect when --predict-medline is not included.
 
 **--dest dir/for/results/** 
-    Optional. Destination for predictions, or test results if --test or --validation are used. Defaults to 
+    \nOptional. Destination for predictions, or test results if --test or --validation are used. Defaults to 
     current directory. File names for predictions or test results are hardcoded, for now: 
     citation_predictions_YYYY-DD-MM.txt if running system on a batch of citations; SIS_test_results.txt 
     if running on test or validation datasets.   
 
 **--validation** 
-    Optional. Include to run system on 2018 validation dataset. Do not include --path if
-    --test included.  
+    \nOptional. Include to run system on 2018 validation dataset. Do not include --path if
+    --validation included.  
 
 **--test**
-    Optional. Include to run system on 2018 test dataset. Do not include --path if
-    --validation included. 
+    \nOptional. Include to run system on 2018 test dataset. Do not include --path if
+    --test included. 
 
 **--predict_medline**
-    Optional. New in version 0.1.1. If included, the system will make predictions for 
+    \nOptional. New in version 0.1.1. If included, the system will make predictions for 
     ONLY non-selectively indexed journals, with ONLY MEDLINE statuses. 
     Important to note, is that without this option, 
     the system only makes predictions for selectively 
     indexed journals (those recommended to us by human indexers) 
     where the status is not MEDLINE or PubMed-not-MEDLINE. The reason 
     for this switch is to be able to test the performance of the system 
-    on citations whose label is MEDLINE, and to also be able to use the system 
+    on citations labeled is MEDLINE, and to also be able to use the system 
     in production, where it is only required to make predictions for selectively 
-    indexed citations whose status in PubMed is not yet known.
+    indexed citations where the status in PubMed is not yet known.
 
 If you forget your options, input
 ```
@@ -148,7 +143,7 @@ Usage of --validation and --test will be explained below
 
 ## Testing
 To measure performance of the system, validation and test datasets are included with the SIS
-package. To run the models on these datasets, include the --validation or --test option
+package. To run the models on these datasets, include the --validation or --test option,
 as shown in the example below. Input one or the other, not both. These tests are not affected
 by the --predict-medline option
 

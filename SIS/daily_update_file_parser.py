@@ -22,8 +22,8 @@ def parse_update_file(path, journal_drop, predict_medline, selectively_indexed_i
         for medline_citation_node in root_node.findall('PubmedArticle/MedlineCitation'):
             citation_data = _extract_citation_data(medline_citation_node)
             # Make predictions for only selectively indexed journals 
-            # that do not have a MEDLINE and PubMed-not-MEDLINE status yet
-            # Citations that do not meet this criteria will not be processed
+            # that do not have a MEDLINE and PubMed-not-MEDLINE status yet.
+            # Citations that do not meet this criteria will not be processed,
             # nor will citations from misindexed journals if 
             # --no-journal-drop is included
             if not predict_medline and (citation_data[6] != "MEDLINE" and citation_data[6] != "PubMed-not-MEDLINE"):

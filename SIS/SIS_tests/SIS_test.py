@@ -8,27 +8,33 @@ from math import isclose
 from sklearn.metrics import classification_report, precision_score, recall_score
 import datetime
 import pickle
+import sys
 
 from ..combined_model import *
 from ..preprocess_CNN_data import get_batch_data 
 from .preprocess_voting_data_test import preprocess_data
 from ..misindexed_journal_ids import misindexed_ids
+from ..thresholds import *
 
 
-def parse_test_citations(XML_path):
+def parse_test_citations(XML_path, journal_drop):
     """
     Parse the test citations 
     that alistair put together
     """
     
     with open(XML_path) as f:
-        citations_json = json.load(f) 
+        citations = json.load(f) 
 
-    return citations_json
+    if journal_drop:
+        citations = [citation for citation in citations if citation['journal_nlmid'] not in misindexed_ids]
+
+    return citations
 
 
 def drop_test_predictions(prediction_dict, adjusted_predictions, labels):
     """
+    DEPRECATED? 
     Drop predictions of citations from 
     misindexed citations
     """
@@ -44,18 +50,31 @@ def drop_test_predictions(prediction_dict, adjusted_predictions, labels):
     return filtered_labels, filtered_predictions
 
 
-def evaluate_individual_models(cnn_predictions, voting_predictions, labels):
+def evaluate_individual_models(cnn_predictions, voting_predictions, labels, group_thresh, journal_ids, group_ids):
     """
     Evaluate the performance on the CNN and voting
     ensemble, using the validation or test data sets. 
     Returns precision and recall for each model.
     """
 
-    cnn_thresh = .02
-    voting_thresh = .04
+    if not group_thresh:
+        adj_voting_preds = [1 if y >= VOTING_THRESH else 0 for y in voting_predictions]
+        adj_cnn_preds = [1 if y >= CNN_THRESH else 0 for y in cnn_predictions]
+    # Not working as expected, as validation thresholds don't apply to test set.
+    else:
+        adj_voting_preds = []
+        adj_cnn_preds = []
+        for cnn_prob, voting_prob, journal_id in zip(cnn_predictions, voting_predictions, journal_ids):
+            if journal_id in group_ids['science']:
+                adj_voting_preds.append(1 if voting_prob >= VOTING_SCIENCE_THRESH else 0)
+                adj_cnn_preds.append(1 if cnn_prob >= CNN_SCIENCE_THRESH else 0)
+            elif journal_id in group_ids['jurisprudence']:
+                adj_voting_preds.append(1 if voting_prob >= VOTING_JURISPRUDENCE_THRESH else 0)
+                adj_cnn_preds.append(1 if cnn_prob >= CNN_JURISPRUDENCE_THRESH else 0)
+            else:
+                adj_voting_preds.append(1 if voting_prob >= VOTING_THRESH else 0)
+                adj_cnn_preds.append(1 if cnn_prob >= CNN_THRESH else 0)
 
-    adj_voting_preds = [1 if y >= voting_thresh else 0 for y in voting_predictions]
-    adj_cnn_preds = [1 if y >= cnn_thresh else 0 for y in cnn_predictions]
     voting_precision = precision_score(labels, adj_voting_preds)
     voting_recall = recall_score(labels, adj_voting_preds)
     cnn_precision = precision_score(labels, adj_cnn_preds)
@@ -66,7 +85,7 @@ def evaluate_individual_models(cnn_predictions, voting_predictions, labels):
 
 def SIS_test_main(
         dataset, journal_ids_path, word_indicies_path, 
-        group_thresh, journal_drop, destination):
+        group_thresh, journal_drop, destination, group_ids, args):
     """
     Main function to run voting and CNN, combine results,
     adjust decision threshold, and make new predictions
@@ -76,8 +95,8 @@ def SIS_test_main(
         XML_path = resource_filename(__name__, "datasets/pipeline_validation_set.json")
     else:
         XML_path = resource_filename(__name__, "datasets/pipeline_test_set")
-
-    citations = parse_test_citations(XML_path) 
+   
+    citations = parse_test_citations(XML_path, journal_drop) 
     voting_citations, journal_ids, labels = preprocess_data(citations)
     voting_predictions = run_voting(voting_citations)
     CNN_citations = get_batch_data(citations, journal_ids_path, word_indicies_path)
@@ -85,46 +104,39 @@ def SIS_test_main(
     combined_predictions = combine_predictions(voting_predictions, cnn_predictions)
     prediction_dict = {'predictions': combined_predictions, 'journal_ids': journal_ids}
     adjusted_predictions = adjust_thresholds(prediction_dict, group_thresh) 
-    if journal_drop:
-        adjusted_labels, adjusted_predictions = drop_test_predictions(prediction_dict, adjusted_predictions, labels)
-    else:
-        adjusted_labels = labels
 
-    cnn_recall, cnn_precision, voting_recall, voting_precision = evaluate_individual_models(cnn_predictions, voting_predictions, labels)
-    SIS_recall = recall_score(adjusted_labels, adjusted_predictions)
-    SIS_precision = precision_score(adjusted_labels, adjusted_predictions)
+    cnn_recall, cnn_precision, voting_recall, voting_precision = evaluate_individual_models(cnn_predictions, voting_predictions, labels, group_thresh, journal_ids, group_ids)
+    SIS_recall = recall_score(labels, adjusted_predictions)
+    SIS_precision = precision_score(labels, adjusted_predictions)
 
+    # Values computed using generate_validation_vs_test_vs_group_thresholds.py
     if not group_thresh and not journal_drop:
         if dataset == "validation":
-            assert isclose(cnn_recall, .9964, abs_tol=1e-4), "CNN recall does not match expected value"
-            assert isclose(cnn_precision, .3312, abs_tol=1e-4), "CNN precision does not match expected value"
-            assert isclose(voting_recall, .9956, abs_tol=1e-4), "Voting recall does not match expected value"
-            assert isclose(voting_precision, .2899, abs_tol=1e-4), "Voting precision does not match expected value"
-            assert isclose(SIS_recall, .9949, abs_tol=1e-4), "SIS recall does not match expected value"
-            assert isclose(SIS_precision, .3897, abs_tol=1e-4), "SIS precision does not match expected value"
+            assert isclose(cnn_recall, .9952, abs_tol=1e-4), "CNN recall does not match expected value"
+            assert isclose(cnn_precision, .3508, abs_tol=1e-4), "CNN precision does not match expected value"
+            assert isclose(voting_recall, .9952, abs_tol=1e-4), "Voting recall does not match expected value"
+            assert isclose(voting_precision, .3030, abs_tol=1e-4), "Voting precision does not match expected value"
+            assert isclose(SIS_recall, .9952, abs_tol=1e-4), "SIS recall does not match expected value"
+            assert isclose(SIS_precision, .3858, abs_tol=1e-4), "SIS precision does not match expected value"
             print("Assertions passed")
         else:
-            assert isclose(cnn_recall, .9948, abs_tol=1e-4), "CNN recall does not match expected value" 
-            assert isclose(cnn_precision, .3254, abs_tol=1e-4), "CNN precision does not match expected value"
-            assert isclose(voting_recall, .9927, abs_tol=1e-4), "Voting recall does not match expected value"
-            assert isclose(voting_precision, .2845, abs_tol=1e-4), "Voting precision does not match expected value"
-            assert isclose(SIS_recall, .9923, abs_tol=1e-4), "SIS recall does not match expected value"
-            assert isclose(SIS_precision, .3845, abs_tol=1e-4), "SIS precision does not match expected value"
+            assert isclose(cnn_recall, .9946, abs_tol=1e-4), "CNN recall does not match expected value" 
+            assert isclose(cnn_precision, .3459, abs_tol=1e-4), "CNN precision does not match expected value"
+            assert isclose(voting_recall, .9931, abs_tol=1e-4), "Voting recall does not match expected value"
+            assert isclose(voting_precision, .2998, abs_tol=1e-4), "Voting precision does not match expected value"
+            assert isclose(SIS_recall, .9935, abs_tol=1e-4), "SIS recall does not match expected value"
+            assert isclose(SIS_precision, .3795, abs_tol=1e-4), "SIS precision does not match expected value"
             print("Assertions passed")
 
     results_path = "{}/SIS_test_results.txt".format(destination)
     with open(results_path, "a") as f:
-        f.write("""\n\n{0}\nDataset: {1}\n--no-journal-drop: {2}\n--no-group-thresh {3}\n""".format(
-                    datetime.datetime.now(), 
-                    dataset,
-                    journal_drop,
-                    group_thresh
-                    ))
-
+        f.write("\n\n")
+        for arg in vars(args):
+            f.write("{0}: {1}\n".format(arg, vars(args)[arg]))
         f.write("""SIS recall: {0}\nSIS precision: {1}\nVoting recall: {2}\nVoting precision: {3}\nCNN recall: {4}\nCNN precision: {5}\n""".format(
-                    SIS_recall,
-                    SIS_precision,
-                    voting_recall,
-                    voting_precision,
-                    cnn_recall,
-                    cnn_precision))
+                SIS_recall,
+                SIS_precision,
+                voting_recall,
+                voting_precision,
+                cnn_recall,
+                cnn_precision))
