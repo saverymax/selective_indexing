@@ -83,7 +83,7 @@ def evaluate_individual_models(cnn_predictions, voting_predictions, labels, grou
     return cnn_recall, cnn_precision, voting_recall, voting_precision
 
 
-def SIS_test_main(
+def BCS_test_main(
         dataset, journal_ids_path, word_indicies_path, 
         group_thresh, journal_drop, destination, group_ids, args):
     """
@@ -106,8 +106,8 @@ def SIS_test_main(
     adjusted_predictions = adjust_thresholds(prediction_dict, group_thresh) 
 
     cnn_recall, cnn_precision, voting_recall, voting_precision = evaluate_individual_models(cnn_predictions, voting_predictions, labels, group_thresh, journal_ids, group_ids)
-    SIS_recall = recall_score(labels, adjusted_predictions)
-    SIS_precision = precision_score(labels, adjusted_predictions)
+    BCS_recall = recall_score(labels, adjusted_predictions)
+    BCS_precision = precision_score(labels, adjusted_predictions)
 
     # Values computed using generate_validation_vs_test_vs_group_thresholds.py
     if not group_thresh and not journal_drop:
@@ -116,26 +116,26 @@ def SIS_test_main(
             assert isclose(cnn_precision, .3508, abs_tol=1e-4), "CNN precision does not match expected value"
             assert isclose(voting_recall, .9952, abs_tol=1e-4), "Voting recall does not match expected value"
             assert isclose(voting_precision, .3030, abs_tol=1e-4), "Voting precision does not match expected value"
-            assert isclose(SIS_recall, .9952, abs_tol=1e-4), "SIS recall does not match expected value"
-            assert isclose(SIS_precision, .3858, abs_tol=1e-4), "SIS precision does not match expected value"
+            assert isclose(BCS_recall, .9952, abs_tol=1e-4), "BCS recall does not match expected value"
+            assert isclose(BCS_precision, .3858, abs_tol=1e-4), "BCS precision does not match expected value"
             print("Assertions passed")
         else:
             assert isclose(cnn_recall, .9946, abs_tol=1e-4), "CNN recall does not match expected value" 
             assert isclose(cnn_precision, .3459, abs_tol=1e-4), "CNN precision does not match expected value"
             assert isclose(voting_recall, .9931, abs_tol=1e-4), "Voting recall does not match expected value"
             assert isclose(voting_precision, .2998, abs_tol=1e-4), "Voting precision does not match expected value"
-            assert isclose(SIS_recall, .9935, abs_tol=1e-4), "SIS recall does not match expected value"
-            assert isclose(SIS_precision, .3795, abs_tol=1e-4), "SIS precision does not match expected value"
+            assert isclose(BCS_recall, .9935, abs_tol=1e-4), "BCS recall does not match expected value"
+            assert isclose(BCS_precision, .3795, abs_tol=1e-4), "BCS precision does not match expected value"
             print("Assertions passed")
 
-    results_path = "{}/SIS_test_results.txt".format(destination)
+    results_path = "{}/BCS_test_results.txt".format(destination)
     with open(results_path, "a") as f:
         f.write("\n\n")
         for arg in vars(args):
             f.write("{0}: {1}\n".format(arg, vars(args)[arg]))
-        f.write("""SIS recall: {0}\nSIS precision: {1}\nVoting recall: {2}\nVoting precision: {3}\nCNN recall: {4}\nCNN precision: {5}\n""".format(
-                SIS_recall,
-                SIS_precision,
+        f.write("""BCS recall: {0}\nBCS precision: {1}\nVoting recall: {2}\nVoting precision: {3}\nCNN recall: {4}\nCNN precision: {5}\n""".format(
+                BCS_recall,
+                BCS_precision,
                 voting_recall,
                 voting_precision,
                 cnn_recall,

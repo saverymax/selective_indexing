@@ -1,21 +1,21 @@
 import setuptools
+from pathlib import Path
 
 with open("README.md", "r") as f:
     long_description = f.read()
-
 setuptools.setup(
-        name="SIS",
-        version="0.1.1",
-        author="Max Savery",
+        name="BCS",
+        version="0.2.1",
+        author="Max Savery, Alistair Rae",
         author_email="savermax@gmail.com",
-        description="Selective Indexing System (SIS) for classification of MEDLINE citations",
+        description="Biomedical Citation Selector for classification of MEDLINE citations",
         long_description=long_description,
         long_description_content_type="text/markdown",
         url="https://github.com/saverymax/selective_indexing",
-        packages=["SIS", "SIS.SIS_tests"],
+        packages=["BCS", "BCS.BCS_tests"],
         entry_points={
             'console_scripts': [
-                "SIS=SIS.SIS:main"
+                "BCS=BCS.BCS:main"
                 ]},
         classifiers=[
             "Programming Language :: Python :: 3.6",
@@ -31,11 +31,11 @@ setuptools.setup(
             "nltk"
             ],
         package_data={
-            'SIS': [
+            'BCS': [
                 "./selectively_indexed_id_mapping.json",
                 "./group_ids.json",
                 "models/*",
-                "SIS_tests/datasets/*"
+                "BCS_tests/datasets/*"
                 ]},
         )
 

@@ -10,9 +10,10 @@ from ..combined_model import *
 from ..daily_update_file_parser import parse_update_file
 from ..preprocess_CNN_data import get_batch_data 
 from ..preprocess_voting_data import preprocess_data
-from ..SIS_tests.SIS_test import SIS_test_main
+from ..BCS_tests.BCS_test import BCS_test_main
+from BCS import BCS
 
-class test_SIS_cli(unittest.TestCase):
+class test_BCS_cli(unittest.TestCase):
     """
     Class to test 
     the effect of command line arguments on input to models
@@ -20,54 +21,6 @@ class test_SIS_cli(unittest.TestCase):
     in the daily_update_parser work as expected,
     especially as more things are added on
     """
-
-    def get_args(self):
-        """
-        Get command line parser
-        """
-
-        parser = argparse.ArgumentParser(description="Arguments for initializing classifier")
-        parser.add_argument("--path",
-                            dest="path",
-                            help="Path to XML containing batch of citations")
-        parser.add_argument("--group-thresh",
-                            dest="group_thresh",
-                            action="store_true",
-                            help="If included, use predetermined threshold for science and jurisprudence groups. Default is to not use these group thresholds, as they have been shown hard to predict.")
-        parser.add_argument("--no-journal-drop",
-                            dest="journal_drop",
-                            action="store_false",
-                            help="If included, model will make predictions for misindexed journals that have been shown to be difficult to classify")
-        parser.add_argument("--dest",
-                            dest="destination",
-                            default=".",
-                            help="Destination directory for predictions or testing metrics. Will default to the current directory")
-        parser.add_argument("--validation",
-                            dest="validation",
-                            action="store_true",
-                            help="If included, test the system on the validation dataset. Will output metrics to SIS_test_results.txt")
-        parser.add_argument("--test",
-                            dest="test",
-                            action="store_true",
-                            help="If included, test the system on the test dataset. Will output metrics to SIS_test_results.txt")
-        parser.add_argument("--predict-medline",
-                            dest="predict_medline",
-                            action="store_true",
-                            help="If included, the system will make predictions for all citations.  If not included, it will only make predictions for citations from selectively indexed journals that have been suggested to be important")
-
-        return parser
-
-    def save_predictions(self, adjusted_predictions, prediction_dict, pmids, destination):
-        """
-        Save predictions to file in format
-        pmid|binary prediction|probability
-
-        Currently not used for testing
-        """
-
-        with open("{0}/citation_predictions_{1}.txt".format(destination, datetime.datetime.now().strftime('%Y-%m-%d')), "w") as f:
-            for i, prediction in enumerate(adjusted_predictions):
-                f.write("{0}|{1}|{2}\n".format(pmids[i], prediction, prediction_dict['predictions'][i]))
 
     def test_main(self):
         """
@@ -77,18 +30,19 @@ class test_SIS_cli(unittest.TestCase):
 
         # Use unitttest.mock.patch to simulate command line arguments, so that they can be used 
         # with pytest
-        # Good SO answer:
         # https://stackoverflow.com/questions/18160078/how-do-you-write-tests-for-the-argparse-portion-of-a-python-module
         with patch("argparse.ArgumentParser.parse_args", return_value=argparse.Namespace(
                                 path="null",
                                 group_thresh=False,
                                 journal_drop=True,
+                                pub_type_filter=True,
                                 destination=".",
                                 validation=False,
                                 test=False,
-                                predict_medline=False
+                                predict_medline=False,
+                                predict_all=False
                                 )):
-            args = self.get_args().parse_args()
+            args = BCS.get_args().parse_args()
 
         journal_ids_path = resource_filename(__name__, "../models/journal_ids.txt")
         word_indicies_path = resource_filename(__name__, "../models/word_indices.txt")
@@ -105,15 +59,21 @@ class test_SIS_cli(unittest.TestCase):
         journal_drop = args.journal_drop
         destination = args.destination
         predict_medline = args.predict_medline
-        
+        predict_all = args.predict_all
+        pub_type_filter = args.pub_type_filter
+
         # Ids of citations in test_citations.xml.
         # The ids have been hand selected, for their status and indexing status,
         # so that their treatment by the system can be predicted.
+        # 30160246 is included in the test_citations as an example of something with PubMed-not-MEDLINE
+        # from selectively indexed journal. Useful to know, but not used in tests below.
         test_ids = [
                 "12269810", # MEDLINE status, from non-selectively indexed journal
                 "21179314", # PubMed-not-MEDLINE status, from non-selectively indexed journals
-                "30568209", # In process status, from selectively indexed journal
+                "30886396", # In process status, from selectively indexed journal, system is very confident, i.e., will be marked for automatic indexing
                 "29994383", # In process status, from selectively indexed journal in journal drop list
+                "30883917", # Has pubtype indicator in title. In process status, fully indexed journal. 
+                "30299937", # Has pubtype indicator in title. In process status, selectively indexed journal.
                 ]
                     
         XML_path = resource_filename(__name__, "datasets/test_citations.xml")
@@ -122,22 +82,32 @@ class test_SIS_cli(unittest.TestCase):
         # Run on citations curated for testing command line options
         # All dropping options are considered in parse_update_file
         # First run with default, where journal_drop == True and predict_medline == False
-        citations = parse_update_file(XML_path, journal_drop, predict_medline, selectively_indexed_ids)
-        self.assertEqual(len(citations), 1)
+        citations = parse_update_file(
+                XML_path, journal_drop, predict_medline, 
+                selectively_indexed_ids, predict_all
+                )
+	# There should be two citations from selectively indexed journals with in process status: 30299937 and 30886396
+        self.assertEqual(len(citations), 2)
         self.assertEqual(citations[0]['pmid'], int(test_ids[2]))
+        self.assertEqual(citations[1]['pmid'], int(test_ids[5]))
 
         # Then set journal drop to false:
         journal_drop = not journal_drop
-        citations = parse_update_file(XML_path, journal_drop, predict_medline, selectively_indexed_ids)
-        self.assertEqual(len(citations), 2)
-        self.assertEqual(citations[0]['pmid'], int(test_ids[2]))
-        self.assertEqual(citations[1]['pmid'], int(test_ids[3]))
+        citations = parse_update_file(XML_path, journal_drop, predict_medline, selectively_indexed_ids, predict_all)
+        self.assertEqual(len(citations), 3)
+        self.assertEqual(citations[0]['pmid'], int(test_ids[3]))
+        self.assertEqual(citations[1]['pmid'], int(test_ids[2]))
         
         # And then try with predict_medline as true. 
         predict_medline = not predict_medline
-        citations = parse_update_file(XML_path, journal_drop, predict_medline, selectively_indexed_ids)
+        citations = parse_update_file(XML_path, journal_drop, predict_medline, selectively_indexed_ids, predict_all)
         self.assertEqual(len(citations), 1)
         self.assertEqual(citations[0]['pmid'], int(test_ids[0]))
+        
+        # Finally test with predict all, and use those citations for the rest of the tests.
+        predict_all = not predict_all
+        citations = parse_update_file(XML_path, journal_drop, predict_medline, selectively_indexed_ids, predict_all)
+        self.assertEqual(len(citations), 7, [citation['pmid'] for citation in citations])
 
         # Test length and type of data + predictions
         voting_citations, journal_ids, pmids = preprocess_data(citations)
@@ -159,7 +129,20 @@ class test_SIS_cli(unittest.TestCase):
         self.assertEqual(len(combined_predictions), len(citations))
         prediction_dict = {'predictions': combined_predictions, 'journal_ids': journal_ids}
         self.assertEqual(len(prediction_dict['predictions']), len(prediction_dict['journal_ids']))
-        adjusted_predictions = adjust_thresholds(prediction_dict, group_thresh) 
+        adjusted_predictions = adjust_thresholds(prediction_dict, group_ids, group_thresh) 
         self.assertEqual(len(combined_predictions), len(adjusted_predictions))
-        self.save_predictions(adjusted_predictions, prediction_dict, pmids, destination)
+
+        # Test pubtype filter
+        # The labels start as 1s
+        self.assertEqual(adjusted_predictions[5], 1) 
+        self.assertEqual(adjusted_predictions[6], 1) 
+        adjusted_predictions = filter_pub_type(citations, adjusted_predictions)
+        self.assertEqual(adjusted_predictions[5], 2) 
+        self.assertEqual(adjusted_predictions[6], 2) 
+        
+        # Test adjustment of very confident predictions
+        adjusted_predictions = adjust_in_scope_predictions(adjusted_predictions, prediction_dict)
+        self.assertEqual(adjusted_predictions[4], 3) 
+        
+        #BCS.save_predictions(adjusted_predictions, prediction_dict, pmids, destination)
 
