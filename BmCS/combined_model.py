@@ -91,7 +91,6 @@ def combine_predictions(voting_predictions, cnn_predictions):
     """
     Combine the predictions of the two models
     """
-
     return voting_predictions*cnn_predictions
 
 
