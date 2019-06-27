@@ -1,9 +1,8 @@
 models/
 build/
+datasets/
 dist/
 SIS.egg-info
 __pycache__/
 *.xml
-pipeline_test_set
-*.json
-*.txt
+*.sh
