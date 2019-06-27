@@ -4,7 +4,7 @@ from pathlib import Path
 with open("README.md", "r") as f:
     long_description = f.read()
 setuptools.setup(
-        name="BCS",
+        name="BmCS",
         version="0.2.1",
         author="Max Savery, Alistair Rae",
         author_email="savermax@gmail.com",
@@ -12,10 +12,10 @@ setuptools.setup(
         long_description=long_description,
         long_description_content_type="text/markdown",
         url="https://github.com/saverymax/selective_indexing",
-        packages=["BCS", "BCS.BCS_tests"],
+        packages=["BmCS", "BmCS.BmCS_tests"],
         entry_points={
             'console_scripts': [
-                "BCS=BCS.BCS:main"
+                "BmCS=BmCS.BmCS:main"
                 ]},
         classifiers=[
             "Programming Language :: Python :: 3.6",
@@ -31,11 +31,11 @@ setuptools.setup(
             "nltk"
             ],
         package_data={
-            'BCS': [
+            'BmCS': [
                 "./selectively_indexed_id_mapping.json",
                 "./group_ids.json",
                 "models/*",
-                "BCS_tests/datasets/*"
+                "BmCS_tests/datasets/*"
                 ]},
         )
 

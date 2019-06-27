@@ -10,10 +10,10 @@ from ..combined_model import *
 from ..daily_update_file_parser import parse_update_file
 from ..preprocess_CNN_data import get_batch_data 
 from ..preprocess_voting_data import preprocess_data
-from ..BCS_tests.BCS_test import BCS_test_main
-from BCS import BCS
+from ..BmCS_tests.BmCS_test import BmCS_test_main
+from BmCS import BmCS
 
-class test_BCS_cli(unittest.TestCase):
+class test_BmCS_cli(unittest.TestCase):
     """
     Class to test 
     the effect of command line arguments on input to models
@@ -42,7 +42,7 @@ class test_BCS_cli(unittest.TestCase):
                                 predict_medline=False,
                                 predict_all=False
                                 )):
-            args = BCS.get_args().parse_args()
+            args = BmCS.get_args().parse_args()
 
         journal_ids_path = resource_filename(__name__, "../models/journal_ids.txt")
         word_indicies_path = resource_filename(__name__, "../models/word_indices.txt")
@@ -143,6 +143,3 @@ class test_BCS_cli(unittest.TestCase):
         # Test adjustment of very confident predictions
         adjusted_predictions = adjust_in_scope_predictions(adjusted_predictions, prediction_dict)
         self.assertEqual(adjusted_predictions[4], 3) 
-        
-        #BCS.save_predictions(adjusted_predictions, prediction_dict, pmids, destination)
-

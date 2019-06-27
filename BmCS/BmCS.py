@@ -7,7 +7,7 @@ from .combined_model import *
 from .daily_update_file_parser import parse_update_file
 from .preprocess_CNN_data import get_batch_data 
 from .preprocess_voting_data import preprocess_data
-from .BCS_tests.BCS_test import BCS_test_main
+from .BmCS_tests.BmCS_test import BmCS_test_main
 
 
 def get_args():
@@ -38,11 +38,11 @@ def get_args():
     parser.add_argument("--validation",
                         dest="validation",
                         action="store_true",
-                        help="If included, test the system on the validation dataset. Will output metrics to BCS_test_results.txt")
+                        help="If included, test the system on the validation dataset. Will output metrics to BmCS_test_results.txt")
     parser.add_argument("--test",
                         dest="test",
                         action="store_true",
-                        help="If included, test the system on the test dataset. Will output metrics to BCS_test_results.txt")
+                        help="If included, test the system on the test dataset. Will output metrics to BmCS_test_results.txt")
     parser.add_argument("--predict-medline",
                         dest="predict_medline",
                         action="store_true",
@@ -99,7 +99,7 @@ def main():
     # Predict MEDLINE has no effect
     if args.test or args.validation:
         dataset = "test" if args.test else "validation"
-        BCS_test_main(
+        BmCS_test_main(
             dataset, journal_ids_path, word_indices_path, 
             group_thresh, journal_drop, destination, group_ids, args)
 
@@ -125,5 +125,3 @@ def main():
         # Mark citations for automatic selection if above prediction threshold
         adjusted_predictions = adjust_in_scope_predictions(adjusted_predictions, prediction_dict)
         save_predictions(adjusted_predictions, prediction_dict, pmids, destination)
-
-

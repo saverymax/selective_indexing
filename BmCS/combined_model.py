@@ -113,35 +113,3 @@ def filter_pub_type(citations, predictions):
             predictions[i] = 2
 
     return predictions
-
-
-# Pretty sure the following two functions are unecessary after adding 
-# the filtering to the initial data reading:
-# SOme version of them will be necessary if we move the filtering step 
-# to after the data processing.
-#def convert_predictions(prediction_dict, adjusted_predictions, selectively_indexed_ids):
-#    """
-#    If citation is from non-selectively indexed
-#    journal, convert prediction to N/A
-#    """
-#
-#    for i, journal_id in enumerate(prediction_dict['journal_ids']):
-#        if journal_id not in selectively_indexed_ids:
-#            adjusted_predictions[i] = "N/A" 
-#
-#    return adjusted_predictions
-#
-#
-#def drop_predictions(prediction_dict, adjusted_predictions, misindexed_ids):
-#    """
-#    Convert predictions of citations from 
-#    misindexed citations to N/A
-#    """
-#
-#    for i, journal_id in enumerate(prediction_dict['journal_ids']):
-#        if journal_id in misindexed_ids:
-#            adjusted_predictions[i] = "N/A" 
-#
-#    return adjusted_predictions
-
-
