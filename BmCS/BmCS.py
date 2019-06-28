@@ -19,10 +19,10 @@ def get_args():
     parser.add_argument("--path",
                         dest="path",
                         help="Path to XML containing batch of citations")
-    parser.add_argument("--cnn_path",
+    parser.add_argument("--cnn-path",
                         dest="CNN_path",
                         help="Path to CNN weights")
-    parser.add_argument("--ensemble_path",
+    parser.add_argument("--ensemble-path",
                         dest="ensemble_path",
                         help="Path to ensemble")
     parser.add_argument("--group-thresh",

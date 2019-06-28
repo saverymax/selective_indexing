@@ -10,7 +10,7 @@ If you do not have anaconda, or miniconda, and python installed, follow the inst
 Note that this package requires python 3.6.
 
 ### i
-Here are instructions to install miniconda, a lightweight version of anaconda. In installing miniconda, python and 
+Included in this section are instructions to install miniconda, a lightweight version of anaconda. In installing miniconda, python and 
 standard libraries are included.
 
 First, download the miniconda installer:
@@ -42,20 +42,35 @@ If python == 3.6, continue on to section ii. If not, return to go, and maybe ema
 
 ### ii
 
-To download the .whl file for the BmCS package, either click on the release button that should be somewhere up and to the right on github,
-or follow this link: https://github.com/saverymax/selective_indexing/releases
+There are two options for installation of BmCS. You can either download the .whl file in the releases section of the repository, or you can clone this repository
+and generate the .whl file yourself. This section first describes how to generate the .whl, and then describes how to install it.  
 
-Under Assets, click on the BmCS-0.1.1-py3-none-any.whl link to download, and we can get started with the installation. 
-
-Assuming you have downloaded the .whl file for the BmCS package, navigate to the directory where it lives and enter the command below to install.
+#### Build .whl
+Clone this repository 
 ```
-pip install BmCS-0.1.1-py3-none-any.whl
+git clone https://github.com/saverymax/selective_indexing.git
+```
+Once the repository is cloned, navigate into the BmCS directory where the setup.py file lives. 
+
+From the command line run
+```
+python setup.py bdist_wheel
+```
+This will create a dist directory and create a .whl file inside. The .whl file is the compressed package. 
+
+#### Download wheel and installation
+The .whl file can be found in the releases section of this repository: https://github.com/saverymax/selective_indexing/releases
+Under Assets, click on the BmCS-1.0.0-py3-none-any.whl link to download. You should also download the ensemble.joblib
+and model_CNN_weights.hdf5 files. 
+
+Assuming you have downloaded the .whl file, navigate to the directory where it lives and enter the command below to install.
+```
+pip install BmCS-1.0.0-py3-none-any.whl
 ```
 If all goes well, you have now installed the Biomedical Citation Selector (BmCS). Congratulations!
 BmCS has been added to PATH, and is executable from the command line. 
 
-Wait! One more thing...
-Currently the text is tokenized with the NLTK tokenizer. 
+However, before it can be used, there is one more step. Currently the text is tokenized with the NLTK tokenizer. 
 NLTK requires you install it separately. Once you do this once,
 you don't have to worry about it again, even if you uninstall and 
 reinstall BmCS. To install:
@@ -70,9 +85,12 @@ pip uninstall BmCS
 
 ## Usage
 
-The models are not included in this version of the system. The path should be provided in the command line options.
+The models are not included in the package in this version of the system. However, they are provided in the release. 
 
-To run the system BmCS the command line
+Once downloaded, the paths to the models should be provided in the command line options.
+
+### For NCBI usage
+To run BmCS from the command line
 ```
 BmCS --path path/to/some_citations.xml --ensemble-path /path/to/model.joblib --cnn-path /path/to/cnn/weights.hdf5 --predict-all
 ```
@@ -83,10 +101,9 @@ BmCS --path sample_citations.xml --ensemble-path ./models/ensemble.joblib --cnn-
 will generate a set of predictions for the citations in sample_citations.xml
 
 By default, the system will iterate through the citations, and make predictions 
-for each citation published by a selectively indexed journal that 
-does not have a status of MEDLINE or PubMed-not-MEDLINE. 
-The prediction results can be found in the citation_predictions_YYYY-DD-MM.txt output file, which will 
+for each. The prediction results can be found in the citation_predictions_YYYY-DD-MM.txt output file, which will 
 be saved in your current directory, unless otherwise specified. 
+
 Each prediction is printed on a line, in the format 
 pmid|prediction|probability|NLM journal ID 
 
@@ -95,6 +112,10 @@ In the prediction field, 4 labels are possible:
 1: In-scope for indexing, 97% confidence
 2: Citation should be human-reviewed. 
 3: Citation marked as one of the publication types specified in the publication_types file. This label is off by default and is controlled by --pubtype-filter
+
+### For alternative implementation
+If the --predict-all option is not provided, there are a few ways to filter and adjust the predictions.
+Add here.
 
 
 ### Command line options:
@@ -165,7 +186,7 @@ Usage of --validation and --test will be explained below
 
 ## Testing
 To measure performance of the system, validation and test datasets are included with the BmCS
-package. To run the models on these datasets, include the --validation or --test option,
+package. The datasets are not included in the repository. To run the models on these datasets, include the --validation or --test option,
 as shown in the example below. Input one or the other, not both. These tests are not affected
 by the --predict-medline option
 

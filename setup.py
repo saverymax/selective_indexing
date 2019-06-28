@@ -32,7 +32,7 @@ setuptools.setup(
             ],
         package_data={
             'BmCS': [
-                "data/*",
+                "config/*",
                 "models/*",
                 "BmCS_tests/datasets/*"
                 ]},
