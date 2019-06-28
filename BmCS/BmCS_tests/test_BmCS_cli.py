@@ -53,6 +53,11 @@ class test_BmCS_cli(unittest.TestCase):
         with open(selectively_indexed_id_path, "r") as f:
             selectively_indexed_ids = json.load(f)
      
+        misindexed_id_path = resource_filename(__name__, "../config/misindexed_journal_ids.json")
+        with open(misindexed_id_path, "r") as f:
+            misindexed_ids = json.load(f) 
+            misindexed_ids = misindexed_ids['misindexed_ids']
+
         group_id_path = resource_filename(__name__, "../config/group_ids.json") 
         with open(group_id_path, "r") as f:
             group_ids = json.load(f)
@@ -88,7 +93,7 @@ class test_BmCS_cli(unittest.TestCase):
         # First run where journal_drop == True and predict_medline == False
         citations = parse_update_file(
                 XML_path, journal_drop, predict_medline, 
-                selectively_indexed_ids, predict_all
+                selectively_indexed_ids, predict_all, misindexed_ids
                 )
 	# There should be two citations from selectively indexed journals with in process status: 30299937 and 30886396
         self.assertEqual(len(citations), 2)
@@ -97,20 +102,20 @@ class test_BmCS_cli(unittest.TestCase):
 
         # Then set journal drop to false:
         journal_drop = not journal_drop
-        citations = parse_update_file(XML_path, journal_drop, predict_medline, selectively_indexed_ids, predict_all)
+        citations = parse_update_file(XML_path, journal_drop, predict_medline, selectively_indexed_ids, predict_all, misindexed_ids) 
         self.assertEqual(len(citations), 3)
         self.assertEqual(citations[0]['pmid'], int(test_ids[3]))
         self.assertEqual(citations[1]['pmid'], int(test_ids[2]))
         
         # And then try with predict_medline as true. 
         predict_medline = not predict_medline
-        citations = parse_update_file(XML_path, journal_drop, predict_medline, selectively_indexed_ids, predict_all)
+        citations = parse_update_file(XML_path, journal_drop, predict_medline, selectively_indexed_ids, predict_all, misindexed_ids)
         self.assertEqual(len(citations), 1)
         self.assertEqual(citations[0]['pmid'], int(test_ids[0]))
         
         # Finally test with predict all, and use those citations for the rest of the tests.
         predict_all = not predict_all
-        citations = parse_update_file(XML_path, journal_drop, predict_medline, selectively_indexed_ids, predict_all)
+        citations = parse_update_file(XML_path, journal_drop, predict_medline, selectively_indexed_ids, predict_all, misindexed_ids)
         self.assertEqual(len(citations), 7, [citation['pmid'] for citation in citations])
 
         # Test length and type of data + predictions

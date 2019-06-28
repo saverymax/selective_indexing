@@ -133,7 +133,7 @@ As of version 0.1.2, 8 options are available.
     predetermined thresholds for citations from journals in the science or jurisprudence category. Originally, this was intended to improve performance; however, it was shown to be difficult to apply a threshold chosen on the validation set to the test set.
 
 **--journal-drop**
-    Optional. By default the system makes predictions for a small set of journals previously misindexed. Include this option to not include those predictions in the output. This has been shown to improve system precision. To make predictions all citations, including those from these journals, do not include this option. 
+    Optional. By default the system makes predictions for a small set of journals previously misindexed. Include this option to not include those predictions in the output. This has been shown to improve system precision.
     Important to note, this option has no effect when using --predict-all or --predict-medline. 
 
 **--predict-medline**

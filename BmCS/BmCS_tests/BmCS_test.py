@@ -13,11 +13,10 @@ import sys
 from ..model_utils import *
 from ..preprocess_CNN_data import get_batch_data 
 from .preprocess_voting_data_test import preprocess_data
-from ..misindexed_journal_ids import misindexed_ids
 from ..thresholds import *
 
 
-def parse_test_citations(XML_path, journal_drop):
+def parse_test_citations(XML_path, journal_drop, misindexed_ids):
     """
     Parse the test citations 
     that alistair put together
@@ -87,7 +86,7 @@ def evaluate_individual_models(cnn_predictions, voting_predictions, labels, grou
 
 def BmCS_test_main(
         dataset, journal_ids_path, word_indicies_path, 
-        group_thresh, journal_drop, destination, group_ids, args):
+        group_thresh, journal_drop, destination, group_ids, misindexed_ids, args):
     """
     Main function to run voting and CNN, combine results,
     adjust decision threshold, and make new predictions
@@ -98,7 +97,7 @@ def BmCS_test_main(
     else:
         XML_path = resource_filename(__name__, "datasets/pipeline_test_set.json")
    
-    citations = parse_test_citations(XML_path, journal_drop) 
+    citations = parse_test_citations(XML_path, journal_drop, misindexed_ids) 
     voting_citations, journal_ids, labels = preprocess_data(citations)
     voting_predictions = run_voting(args.ensemble_path, voting_citations)
     CNN_citations = get_batch_data(citations, journal_ids_path, word_indicies_path)

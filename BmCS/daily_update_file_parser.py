@@ -6,10 +6,8 @@ import re
 import xml.etree.ElementTree as ET
 import sys
 
-from .misindexed_journal_ids import misindexed_ids
 
-
-def parse_update_file(path, journal_drop, predict_medline, selectively_indexed_ids, predict_all):
+def parse_update_file(path, journal_drop, predict_medline, selectively_indexed_ids, predict_all, misindexed_ids):
     """
     Main parsing function that
     calls private functions within module. 

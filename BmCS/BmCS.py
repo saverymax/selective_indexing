@@ -90,6 +90,11 @@ def main():
     with open(selectively_indexed_id_path, "r") as f:
         selectively_indexed_ids = json.load(f) 
 
+    misindexed_id_path = resource_filename(__name__, "config/misindexed_journal_ids.json")
+    with open(misindexed_id_path, "r") as f:
+        misindexed_ids = json.load(f) 
+        misindexed_ids = misindexed_ids['misindexed_ids']
+
     group_id_path = resource_filename(__name__, "config/group_ids.json") 
     with open(group_id_path, "r") as f:
         group_ids = json.load(f)
@@ -107,7 +112,7 @@ def main():
         dataset = "test" if args.test else "validation"
         BmCS_test_main(
             dataset, journal_ids_path, word_indices_path, 
-            group_thresh, journal_drop, destination, group_ids, args)
+            group_thresh, journal_drop, destination, group_ids, misindexed_ids, args)
 
     #Otherwise run on batch of citations
     else:
@@ -115,7 +120,7 @@ def main():
         # All dropping options are considered in parse_update_file
         citations = parse_update_file(
                 XML_path, journal_drop, predict_medline, 
-                selectively_indexed_ids, predict_all
+                selectively_indexed_ids, predict_all, misindexed_ids 
                 ) 
         voting_citations, journal_ids, pmids = preprocess_data(citations)
         voting_predictions = run_voting(args.ensemble_path, voting_citations)
