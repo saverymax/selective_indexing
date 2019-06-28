@@ -32,8 +32,7 @@ setuptools.setup(
             ],
         package_data={
             'BmCS': [
-                "./selectively_indexed_id_mapping.json",
-                "./group_ids.json",
+                "data/*",
                 "models/*",
                 "BmCS_tests/datasets/*"
                 ]},

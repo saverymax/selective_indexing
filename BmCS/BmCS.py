@@ -3,7 +3,7 @@ import json
 import datetime
 from pkg_resources import resource_string
 
-from .combined_model import *
+from .model_utils import *
 from .daily_update_file_parser import parse_update_file
 from .preprocess_CNN_data import get_batch_data 
 from .preprocess_voting_data import preprocess_data
@@ -19,18 +19,24 @@ def get_args():
     parser.add_argument("--path",
                         dest="path",
                         help="Path to XML containing batch of citations")
+    parser.add_argument("--cnn_path",
+                        dest="CNN_path",
+                        help="Path to CNN weights")
+    parser.add_argument("--ensemble_path",
+                        dest="ensemble_path",
+                        help="Path to ensemble")
     parser.add_argument("--group-thresh",
                         dest="group_thresh",
                         action="store_true",
                         help="If included, use predetermined threshold for science and jurisprudence groups. Default is to not use these group thresholds, as they have been shown hard to predict.")
-    parser.add_argument("--no-journal-drop",
+    parser.add_argument("--journal-drop",
                         dest="journal_drop",
-                        action="store_false",
-                        help="If included, model will make predictions for misindexed journals that have been shown to be difficult to classify")
-    parser.add_argument("--no-pubtype-filter",
+                        action="store_true",
+                        help="If included, model will not make predictions for journals previously misindexed, which have been shown to be more likely to generate false positives. Behavior is overriden by --predict-all")
+    parser.add_argument("--pubtype-filter",
                         dest="pub_type_filter",
-                        action="store_false",
-                        help="If included, turn off the prediction adjustment for pub types. This means predictions will be made for comments, erratum, etc. By default, this is on.")
+                        action="store_true",
+                        help="If included, turn on the prediction adjustment for pub types. This means predictions will be made for comments, erratum, etc. Behavior is overriden by --predict-all")    
     parser.add_argument("--dest",
                         dest="destination",
                         default="./",
@@ -46,7 +52,7 @@ def get_args():
     parser.add_argument("--predict-medline",
                         dest="predict_medline",
                         action="store_true",
-                        help="If included, the system will make predictions for not selectively indexed citations that are labeled MEDLINE.  If not included, it will only make predictions for citations from selectively indexed journals that have been suggested to be important")
+                        help="If included, the system will make predictions for not selectively indexed citations that are labeled MEDLINE.  If not included, it will only make predictions for citations from selectively indexed journals that have been suggested to be important. Behavior is overriden by predict-all")
     parser.add_argument("--predict-all",
                         dest="predict_all",
                         action="store_true",
@@ -79,12 +85,12 @@ def main():
     args = get_args().parse_args()
     journal_ids_path = resource_filename(__name__, "models/journal_ids.txt")
     word_indices_path = resource_filename(__name__, "models/word_indices.txt")
-    
-    selectively_indexed_id_path = resource_filename(__name__, "selectively_indexed_id_mapping.json")
+
+    selectively_indexed_id_path = resource_filename(__name__, "config/selectively_indexed_id_mapping.json")
     with open(selectively_indexed_id_path, "r") as f:
-        selectively_indexed_ids = json.load(f)
- 
-    group_id_path = resource_filename(__name__, "group_ids.json") 
+        selectively_indexed_ids = json.load(f) 
+
+    group_id_path = resource_filename(__name__, "config/group_ids.json") 
     with open(group_id_path, "r") as f:
         group_ids = json.load(f)
 
@@ -112,15 +118,16 @@ def main():
                 selectively_indexed_ids, predict_all
                 ) 
         voting_citations, journal_ids, pmids = preprocess_data(citations)
-        voting_predictions = run_voting(voting_citations)
+        voting_predictions = run_voting(args.ensemble_path, voting_citations)
         CNN_citations = get_batch_data(citations, journal_ids_path, word_indices_path)
-        cnn_predictions = run_CNN(CNN_citations)
+        cnn_predictions = run_CNN(args.CNN_path, CNN_citations)
         combined_predictions = combine_predictions(voting_predictions, cnn_predictions)
         prediction_dict = {'predictions': combined_predictions, 'journal_ids': journal_ids}
         adjusted_predictions = adjust_thresholds(prediction_dict, group_ids, group_thresh) 
         # Convert predictions for pub types based on string matching rules in title 
         # and PublicationType rules
         if pub_type_filter:
+            print("Marking specified Publication Types")
             adjusted_predictions = filter_pub_type(citations, adjusted_predictions)
         # Mark citations for automatic selection if above prediction threshold
         adjusted_predictions = adjust_in_scope_predictions(adjusted_predictions, prediction_dict)

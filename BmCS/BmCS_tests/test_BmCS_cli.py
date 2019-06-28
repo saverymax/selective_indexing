@@ -6,12 +6,12 @@ from pkg_resources import resource_string
 import unittest
 from unittest.mock import patch
 
-from ..combined_model import *
+from ..model_utils import *
 from ..daily_update_file_parser import parse_update_file
 from ..preprocess_CNN_data import get_batch_data 
 from ..preprocess_voting_data import preprocess_data
-from ..BmCS_tests.BmCS_test import BmCS_test_main
 from BmCS import BmCS
+
 
 class test_BmCS_cli(unittest.TestCase):
     """
@@ -35,6 +35,8 @@ class test_BmCS_cli(unittest.TestCase):
                                 path="null",
                                 group_thresh=False,
                                 journal_drop=True,
+                                CNN_path="./model_CNN_weights.hdf5",
+                                ensemble_path="./ensemble.joblib",
                                 pub_type_filter=True,
                                 destination=".",
                                 validation=False,
@@ -47,11 +49,11 @@ class test_BmCS_cli(unittest.TestCase):
         journal_ids_path = resource_filename(__name__, "../models/journal_ids.txt")
         word_indicies_path = resource_filename(__name__, "../models/word_indices.txt")
         
-        selectively_indexed_id_path = resource_filename(__name__, "../selectively_indexed_id_mapping.json")
+        selectively_indexed_id_path = resource_filename(__name__, "../config/selectively_indexed_id_mapping.json")
         with open(selectively_indexed_id_path, "r") as f:
             selectively_indexed_ids = json.load(f)
      
-        group_id_path = resource_filename(__name__, "../group_ids.json") 
+        group_id_path = resource_filename(__name__, "../config/group_ids.json") 
         with open(group_id_path, "r") as f:
             group_ids = json.load(f)
 
@@ -61,6 +63,8 @@ class test_BmCS_cli(unittest.TestCase):
         predict_medline = args.predict_medline
         predict_all = args.predict_all
         pub_type_filter = args.pub_type_filter
+        ensemble_path = args.ensemble_path
+        CNN_path = args.CNN_path
 
         # Ids of citations in test_citations.xml.
         # The ids have been hand selected, for their status and indexing status,
@@ -81,7 +85,7 @@ class test_BmCS_cli(unittest.TestCase):
         self.assertEqual(predict_medline, False)
         # Run on citations curated for testing command line options
         # All dropping options are considered in parse_update_file
-        # First run with default, where journal_drop == True and predict_medline == False
+        # First run where journal_drop == True and predict_medline == False
         citations = parse_update_file(
                 XML_path, journal_drop, predict_medline, 
                 selectively_indexed_ids, predict_all
@@ -114,7 +118,7 @@ class test_BmCS_cli(unittest.TestCase):
         self.assertIsInstance(voting_citations, dict)
         for key in voting_citations:
             self.assertIsInstance(voting_citations[key], list)
-        voting_predictions = run_voting(voting_citations)
+        voting_predictions = run_voting(ensemble_path, voting_citations)
         self.assertEqual(len(voting_predictions), len(citations))
         CNN_citations = get_batch_data(citations, journal_ids_path, word_indicies_path)
         self.assertIsInstance(CNN_citations, dict)
@@ -123,7 +127,7 @@ class test_BmCS_cli(unittest.TestCase):
                 self.assertIsInstance(CNN_citations[key], list)
             else:
                 self.assertIsInstance(CNN_citations[key], np.ndarray)
-        cnn_predictions = run_CNN(CNN_citations)
+        cnn_predictions = run_CNN(CNN_path, CNN_citations)
         self.assertEqual(len(cnn_predictions), len(citations))
         combined_predictions = combine_predictions(voting_predictions, cnn_predictions)
         self.assertEqual(len(combined_predictions), len(citations))
@@ -133,13 +137,14 @@ class test_BmCS_cli(unittest.TestCase):
         self.assertEqual(len(combined_predictions), len(adjusted_predictions))
 
         # Test pubtype filter
-        # The labels start as 1s
-        self.assertEqual(adjusted_predictions[5], 1) 
-        self.assertEqual(adjusted_predictions[6], 1) 
-        adjusted_predictions = filter_pub_type(citations, adjusted_predictions)
+        # 2 are predictions between highly confident in scope and out-of-scope predictions
+        # 3 are special pubtypes. 
         self.assertEqual(adjusted_predictions[5], 2) 
         self.assertEqual(adjusted_predictions[6], 2) 
+        adjusted_predictions = filter_pub_type(citations, adjusted_predictions)
+        self.assertEqual(adjusted_predictions[5], 3) 
+        self.assertEqual(adjusted_predictions[6], 3) 
         
         # Test adjustment of very confident predictions
         adjusted_predictions = adjust_in_scope_predictions(adjusted_predictions, prediction_dict)
-        self.assertEqual(adjusted_predictions[4], 3) 
+        self.assertEqual(adjusted_predictions[4], 1) 

@@ -22,10 +22,8 @@ pub_strings = [
     'retraction notice',
     ]
 
-# Make lowercase
 pub_types = [
-    #'Retraction of Publication',
-    #'Case Reports',
-    #'Journal Article'
-    '',
+    'Retraction of Publication',
+    'Case Reports',
+    'Comment',
     ]

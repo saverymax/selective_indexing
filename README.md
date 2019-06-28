@@ -94,10 +94,10 @@ For journals that have, in the past, been misindexed and are among those that
 we have shown to significantly detract from performance, no prediction will be provided. 
 
 In the prediction field, 4 labels are possible:
-0: Out-of-scope for indexing
-1: Not out-of-scope for indexing
-2: Citation is of a publication type that should be reviewed by indexers.
-3: Very certain that the citation is in-scope for indexing. This citation should be automatically sent to the indexers. 
+0: Out-of-scope for indexing, 99.5% confidence
+1: In-scope for indexing, 97% confidence
+2: Citation should be human-reviewed. 
+3: Citation marked as one of the publication types specified in the publication_types file. This label is off by default and is controlled by --pubtype-filter
 
 
 ### Command line options:
@@ -107,30 +107,34 @@ As of version 0.1.2, 8 options are available.
     Path to XML of citations for the system to classify. Include the file.xml in the path. 
     Do not include with --test or --validation
 
-**--group-thresh**
-    Optional. If included, the system will use the unique, 
-    predetermined thresholds for citations from journals in the science or jurisprudence category. Originally, this was intended to improve performance; however, it was shown to be difficult to apply a threshold chosen on the validation set to the test set.
+**--cnn_path** 
+    Path to CNN weights.  
 
-**--no-journal-drop**
-    Optional. By defualt the system does not make predictions for a small set of journals previously misindexed. This has been shown to improve system performance. To make predictions all citations, including those from these journals, include this option. 
-    Important to note, this option only has no effect when using --predict-all or --predict-medline. 
+**--ensemble_path** 
+    Path to ensemble model
 
-**--no-pubtype-filter**
-    Optional. New in version 0.2.1. By default, the system will mark citations with publication types specified in ___ with a 2 in the output file. To turn this behavior off, and make normal predictions, include this option. 
-    
 **--dest dir/for/results/** 
     Optional. Destination for predictions, or test results if --test or --validation are used. Defaults to 
     current directory. File names for predictions or test results are hardcoded, for now: 
     citation_predictions_YYYY-DD-MM.txt if running system on a batch of citations; BmCS_test_results.txt 
     if running on test or validation datasets.   
 
-**--validation** 
-    Optional. Include to run system on 2018 validation dataset. Do not include --path if
-    --validation included.  
+**--predict-all**
+    Optional. If included, system will make predictions 
+    for all citations in XML provided, regardless of MEDLINE status or selective indexing status of a given journal. 
+    If this option is not included, the system will switch to behavior intended for use outside of NCBI pipeline, i.e., it will filter for selective indexing designation of journal, publication type, and indexing status.
 
-**--test**
-    Optional. Include to run system on 2018 test dataset. Do not include --path if
-    --test included. 
+**--pubtype-filter**
+    Optional. Modified from version 0.2.1. If included, the system will mark citations with publication types specified in publication_type file with a 3 in the output file. 
+    By default this behavior is off.
+ 
+**--group-thresh**
+    Optional. If included, the system will use the unique, 
+    predetermined thresholds for citations from journals in the science or jurisprudence category. Originally, this was intended to improve performance; however, it was shown to be difficult to apply a threshold chosen on the validation set to the test set.
+
+**--journal-drop**
+    Optional. By default the system makes predictions for a small set of journals previously misindexed. Include this option to not include those predictions in the output. This has been shown to improve system precision. To make predictions all citations, including those from these journals, do not include this option. 
+    Important to note, this option has no effect when using --predict-all or --predict-medline. 
 
 **--predict-medline**
     Optional. If included, the system will make predictions for 
@@ -144,10 +148,13 @@ As of version 0.1.2, 8 options are available.
     in production, where it is only required to make predictions for selectively 
     indexed citations where the status in PubMed is not yet known.
 
-**--predict-all**
-    Optional. If included, system will make predictions 
-    for whatever you give it, regardless of MEDLINE status or selective indexing
-    status of a given journal. 
+**--validation** 
+    Optional. Include to run system on 2018 validation dataset. Do not include --path if
+    --validation included.  
+
+**--test**
+    Optional. Include to run system on 2018 test dataset. Do not include --path if
+    --test included. 
 
 If you forget your options, input
 ```
@@ -183,16 +190,17 @@ CNN precision
 
 Once the program is installed run both of the following commands: 
 ```
-BmCS --validation --no-journal-drop 
+BmCS --validation
 ```
 and
 ```
-BmCS --test --no-journal-drop 
+BmCS --test
 ```
-If --no-journal-drop is included, a set of assertions 
+If no options are included, a set of assertions 
 will be tested on the model's performance. If the assertions are passed,
 you can be fairly confident that BmCS has been installed correctly and is ready for 
-further use.
+further use. If options such as journal-drop are included, no assertions will be run,
+but the system's performance can still be observed in the test results.
 
 Further functional testing can be performed using the pytest package.
 ```

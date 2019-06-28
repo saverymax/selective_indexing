@@ -1,7 +1,6 @@
-models/
 build/
 datasets/
 dist/
-SIS.egg-info
+BmCS.egg-info
 __pycache__/
 *.xml

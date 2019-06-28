@@ -10,7 +10,7 @@ import datetime
 import pickle
 import sys
 
-from ..combined_model import *
+from ..model_utils import *
 from ..preprocess_CNN_data import get_batch_data 
 from .preprocess_voting_data_test import preprocess_data
 from ..misindexed_journal_ids import misindexed_ids
@@ -55,12 +55,14 @@ def evaluate_individual_models(cnn_predictions, voting_predictions, labels, grou
     Evaluate the performance on the CNN and voting
     ensemble, using the validation or test data sets. 
     Returns precision and recall for each model.
+
+    Using labels 1 and 0, which do not correspond to prediction output. 
     """
 
     if not group_thresh:
         adj_voting_preds = [1 if y >= VOTING_THRESH else 0 for y in voting_predictions]
         adj_cnn_preds = [1 if y >= CNN_THRESH else 0 for y in cnn_predictions]
-    # Not working as expected, as validation thresholds don't apply to test set.
+    # Performance doesn't necessarily improve as expected, as validation thresholds don't apply to test set.
     else:
         adj_voting_preds = []
         adj_cnn_preds = []
@@ -94,22 +96,24 @@ def BmCS_test_main(
     if dataset == "validation":
         XML_path = resource_filename(__name__, "datasets/pipeline_validation_set.json")
     else:
-        XML_path = resource_filename(__name__, "datasets/pipeline_test_set")
+        XML_path = resource_filename(__name__, "datasets/pipeline_test_set.json")
    
     citations = parse_test_citations(XML_path, journal_drop) 
     voting_citations, journal_ids, labels = preprocess_data(citations)
-    voting_predictions = run_voting(voting_citations)
+    voting_predictions = run_voting(args.ensemble_path, voting_citations)
     CNN_citations = get_batch_data(citations, journal_ids_path, word_indicies_path)
-    cnn_predictions = run_CNN(CNN_citations)
+    cnn_predictions = run_CNN(args.CNN_path, CNN_citations)
     combined_predictions = combine_predictions(voting_predictions, cnn_predictions)
     prediction_dict = {'predictions': combined_predictions, 'journal_ids': journal_ids}
     adjusted_predictions = adjust_thresholds(prediction_dict, group_ids, group_thresh) 
 
     cnn_recall, cnn_precision, voting_recall, voting_precision = evaluate_individual_models(cnn_predictions, voting_predictions, labels, group_thresh, journal_ids, group_ids)
-    BmCS_recall = recall_score(labels, adjusted_predictions)
-    BmCS_precision = precision_score(labels, adjusted_predictions)
+    # Adjust labels for 2 used in adjust thresholds function
+    labels = [2 if label == 1 else 0 for label in labels]
+    BmCS_recall = recall_score(labels, adjusted_predictions, pos_label=2)
+    BmCS_precision = precision_score(labels, adjusted_predictions, pos_label=2)
 
-    # Values computed using generate_validation_vs_test_vs_group_thresholds.py
+    # Values computed using generate_validation_vs_test_vs_group_thresholds.py, not included in this repository.
     if not group_thresh and not journal_drop:
         if dataset == "validation":
             assert isclose(cnn_recall, .9952, abs_tol=1e-4), "CNN recall does not match expected value"
