@@ -1,13 +1,13 @@
 # Biomedical Citation Selector (BmCS)
 
-This repository contains the source code for the combination of 
-a CNN and voting ensemble in the prediction of citations requiring
-MeSH indexing
+This repository contains the source code for the BmCS system, to be used for the prediction of citations requiring MeSH indexing
 
 ## Installation
 
 Is anaconda or miniconda installed? Is python 3.6 installed? If so, then you are good to go. Skip to section ii.
 If you do not have anaconda, or miniconda, and python installed, follow the instructions in i.
+
+Note that this package requires python 3.6.
 
 ### i
 Here are instructions to install miniconda, a lightweight version of anaconda. In installing miniconda, python and 
@@ -63,22 +63,22 @@ reinstall BmCS. To install:
 python -m nltk.downloader punkt
 ```
 
-That's it for the install! 
-
-If you should, for some unfathomable reason, want to uninstall the package
+To uninstall
 ```
 pip uninstall BmCS
 ```
 
 ## Usage
 
-To run the system from the command line, enter
+The models are not included in this version of the system. The path should be provided in the command line options.
+
+To run the system BmCS the command line
 ```
-BmCS --path path/to/some_citations.xml
+BmCS --path path/to/some_citations.xml --ensemble-path /path/to/model.joblib --cnn-path /path/to/cnn/weights.hdf5 --predict-all
 ```
-For example, if sample_citations.xml is in your current directory, running
+For example, if sample_citations.xml is in your current directory and the models are in a models diretory also in your current directory
 ```
-BmCS --path sample_citations.xml
+BmCS --path sample_citations.xml --ensemble-path ./models/ensemble.joblib --cnn-path ./models/model_CNN_weights.hdf5 --predict-all
 ```
 will generate a set of predictions for the citations in sample_citations.xml
 
@@ -89,9 +89,6 @@ The prediction results can be found in the citation_predictions_YYYY-DD-MM.txt o
 be saved in your current directory, unless otherwise specified. 
 Each prediction is printed on a line, in the format 
 pmid|prediction|probability|NLM journal ID 
-
-For journals that have, in the past, been misindexed and are among those that
-we have shown to significantly detract from performance, no prediction will be provided. 
 
 In the prediction field, 4 labels are possible:
 0: Out-of-scope for indexing, 99.5% confidence
@@ -126,7 +123,7 @@ As of version 0.1.2, 8 options are available.
 
 **--pubtype-filter**
     Optional. Modified from version 0.2.1. If included, the system will mark citations with publication types specified in publication_type file with a 3 in the output file. 
-    By default this behavior is off.
+    By default this behavior is off, and is overridden by predict-all.
  
 **--group-thresh**
     Optional. If included, the system will use the unique, 
@@ -147,6 +144,7 @@ As of version 0.1.2, 8 options are available.
     on citations labeled is MEDLINE, and to also be able to use the system 
     in production, where it is only required to make predictions for selectively 
     indexed citations where the status in PubMed is not yet known.
+    This option is overridden by predict-all
 
 **--validation** 
     Optional. Include to run system on 2018 validation dataset. Do not include --path if
