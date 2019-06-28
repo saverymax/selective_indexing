@@ -36,7 +36,7 @@ def get_args():
     parser.add_argument("--pubtype-filter",
                         dest="pub_type_filter",
                         action="store_true",
-                        help="If included, turn on the prediction adjustment for pub types. This means predictions will be made for comments, erratum, etc. Behavior is overriden by --predict-all")    
+                        help="If included, turn on the prediction adjustment for pub types. This means comments, erratum, etc will be marked with a 3 in the output. Behavior is overriden by --predict-all")    
     parser.add_argument("--dest",
                         dest="destination",
                         default="./",
