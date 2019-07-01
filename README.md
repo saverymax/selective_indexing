@@ -99,11 +99,11 @@ Once downloaded, the paths to the models should be provided via the command line
 ### For NCBI usage
 To run BmCS
 ```
-BmCS --path path/to/some_citations.xml --ensemble-path /path/to/model.joblib --cnn-path /path/to/cnn/weights.hdf5 --predict-all
+BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --predict-all --path path/to/some_citations.xml 
 ```
 For example, if sample_citations.xml is in your current directory and the models are in a models diretory 
 ```
-BmCS --path sample_citations.xml --ensemble-path ./models/ensemble.joblib --cnn-path ./models/model_CNN_weights.hdf5 --predict-all
+BmCS ./models/model_CNN_weights.hdf5 ./models/ensemble.joblib --predict-all --path sample_citations.xml 
 ```
 This will generate a set of predictions for the citations in sample_citations.xml. The --predict-all option is required for NCBI usage. 
 
@@ -125,30 +125,30 @@ The flags shown here are explained in more detail in the section below.
 
 To make predictions solely for selectively indexed journals
 ```
-BmCS --path path/to/some_citations.xml --ensemble-path /path/to/model.joblib --cnn-path /path/to/cnn/weights.hdf5
+BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --path path/to/some_citations.xml
 ```
 
 To mark citations of publication types such as comments or erratum with a 3 in the predictions 
 ```
-BmCS --path path/to/some_citations.xml --ensemble-path /path/to/model.joblib --cnn-path /path/to/cnn/weights.hdf5 --pubtype-filter
+BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --path path/to/some_citations.xml --pubtype-filter
 ```
 
 To make predictions for citations only of status MEDLINE
 ```
-BmCS --path path/to/some_citations.xml --ensemble-path /path/to/model.joblib --cnn-path /path/to/cnn/weights.hdf5 --predict-medline
+BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --path path/to/some_citations.xml --predict-medline
 ```
 
 ### Command line options:
 
-**--path** 
+**CNN_path** 
+    Required. Positional. Path to CNN weights.  
+
+**ensemble_path** 
+    Required. Positional. Path to ensemble model
+
+**--path /path/to/citations.xml** 
     Path to XML of citations for the system to classify. Include the file.xml in the path. 
     Do not include with --test or --validation
-
-**--cnn_path** 
-    Path to CNN weights.  
-
-**--ensemble_path** 
-    Path to ensemble model
 
 **--dest dir/for/results/** 
     Optional. Destination for predictions, or test results if --test or --validation are used. Defaults to 

@@ -24,15 +24,17 @@ def get_args():
     """
 
     parser = argparse.ArgumentParser(description="Arguments for initializing classifier")
+    parser.add_argument("CNN_path",
+                        metavar="cnn-path",
+                        type=str,
+                        help="Path to CNN weights")
+    parser.add_argument("ensemble_path",
+                        metavar="ensemble-path",
+                        type=str,
+                        help="Path to ensemble")
     parser.add_argument("--path",
                         dest="path",
                         help="Path to XML containing batch of citations")
-    parser.add_argument("--cnn-path",
-                        dest="CNN_path",
-                        help="Path to CNN weights")
-    parser.add_argument("--ensemble-path",
-                        dest="ensemble_path",
-                        help="Path to ensemble")
     parser.add_argument("--group-thresh",
                         dest="group_thresh",
                         action="store_true",
