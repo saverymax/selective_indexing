@@ -1,7 +1,5 @@
 build/
-datasets/
 dist/
 BmCS.egg-info
 __pycache__/
-*.xml
 *.sh
