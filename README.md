@@ -203,7 +203,7 @@ Usage of --validation and --test will be explained below
 
 ## Testing
 To measure performance of the system, validation and test datasets are included with the BmCS
-package. The datasets are not included in the repository. To run the models on these datasets, include the --validation or --test option,
+package, as well as in the repository. To run the models on these datasets, include the --validation or --test option,
 as shown in the example below. Input one or the other, not both. These tests are not affected
 by the --predict-medline, pubtype-filter, or predict-all options, but journal-drop and group-thresh do change system performance for these tests.
 
