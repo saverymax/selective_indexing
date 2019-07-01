@@ -241,10 +241,10 @@ but the system's performance can still be observed in the test results.
 Important to note is that the system will NOT pass the assertions if the models are retrained. The values used were hand-selected for these models and the values will have to be recalculated or the tests redesigned if new models are provided. 
 
 Further functional testing can be performed using the pytest package.
+To successfully run these tests, the 2 models must be in a models directory in your current directory.
 ```
 pip install pytest
 pytest --pyargs BmCS
 ```
-This will run a set of unittests.
 
 Happy indexing.
