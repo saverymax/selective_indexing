@@ -2,11 +2,12 @@
 
 This repository contains the source code for the BmCS system, to be used for the prediction of citations requiring MeSH indexing
 This README includes the following sections
-#### Installation
-#### Usage 
-#### Testing
+[Installation](####Installation)
+[Usage](####Usage)
+[Testing](####Testing)
 
 
+<a name="Installation"/>
 ## Installation
 
 Installation has been tested with Ubuntu 16.04. While this installation will likely work with Windows, this cannot be guaranteed. 
