@@ -1,6 +1,11 @@
+"""
+Module for ensemble data processing
+"""
+
 def preprocess_data(citations):
     """
     Preprocess data for voting model.
+
     Return dictionary of lists of each feature
     """
 

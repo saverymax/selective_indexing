@@ -1,3 +1,11 @@
+"""
+Module to run pytest unittests
+
+BmCS is imported and a set of dummy arguments are created.
+The effect of these arguments is tested on output of citation predictions
+This includes testing the number of outputs the system provides and the value of the prediction.
+"""
+
 import argparse
 import sys
 import json
@@ -15,8 +23,8 @@ from BmCS import BmCS
 
 class test_BmCS_cli(unittest.TestCase):
     """
-    Class to test 
-    the effect of command line arguments on input to models
+    Class to test the effect of command line arguments on input to models.
+
     Primarily this is to make sure journal dropping things 
     in the daily_update_parser work as expected,
     especially as more things are added on
@@ -24,7 +32,9 @@ class test_BmCS_cli(unittest.TestCase):
 
     def test_main(self):
         """
-        Main function to run voting and CNN, combine results,
+        Main testing function for BmCS
+
+        Run voting and CNN, combine results,
         adjust decision threshold, and make predictions
         """
 
@@ -72,10 +82,9 @@ class test_BmCS_cli(unittest.TestCase):
         CNN_path = args.CNN_path
 
         # Ids of citations in test_citations.xml.
-        # The ids have been hand selected, for their status and indexing status,
-        # so that their treatment by the system can be predicted.
+        # The ids have been hand selected, for their status and selective indexing status
         # 30160246 is included in the test_citations as an example of something with PubMed-not-MEDLINE
-        # from selectively indexed journal. Useful to know, but not used in tests below.
+        # from selectively indexed journal. Useful to know is required, but not used in tests below.
         test_ids = [
                 "12269810", # MEDLINE status, from non-selectively indexed journal
                 "21179314", # PubMed-not-MEDLINE status, from non-selectively indexed journals

@@ -1,3 +1,11 @@
+"""
+Main module to Run BmCS
+
+BmCS is a machine learning system for classification of selectively indexed citations.
+This module establishes command line arguments and provides code to run the system
+"""
+
+
 import argparse
 import json
 import datetime
@@ -36,7 +44,7 @@ def get_args():
     parser.add_argument("--pubtype-filter",
                         dest="pub_type_filter",
                         action="store_true",
-                        help="If included, turn on the prediction adjustment for pub types. This means comments, erratum, etc will be marked with a 3 in the output. Behavior is overriden by --predict-all")    
+                        help="If included, turn on the prediction adjustment for pub types. This means comments, erratum, etc will be marked with a 3 in the output.") 
     parser.add_argument("--dest",
                         dest="destination",
                         default="./",
@@ -63,6 +71,7 @@ def get_args():
 def save_predictions(adjusted_predictions, prediction_dict, pmids, destination):
     """
     Save predictions to file in format
+
     pmid|binary prediction|probability|journal
     """
     
@@ -78,8 +87,7 @@ def save_predictions(adjusted_predictions, prediction_dict, pmids, destination):
 
 def main():
     """
-    Main function to run ensemble and CNN, combine results,
-    adjust decision threshold, and make predictions
+    Main function to run ensemble and CNN, combine results, adjust decision threshold, and make predictions. 
     """
 
     args = get_args().parse_args()

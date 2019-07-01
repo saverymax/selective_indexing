@@ -18,8 +18,7 @@ from ..thresholds import *
 
 def parse_test_citations(XML_path, journal_drop, misindexed_ids):
     """
-    Parse the test citations 
-    that alistair put together
+    Parse the test citations from json
     """
     
     with open(XML_path) as f:
@@ -31,31 +30,14 @@ def parse_test_citations(XML_path, journal_drop, misindexed_ids):
     return citations
 
 
-def drop_test_predictions(prediction_dict, adjusted_predictions, labels):
-    """
-    DEPRECATED? 
-    Drop predictions of citations from 
-    misindexed citations
-    """
-
-    filtered_predictions = []
-    filtered_labels = []
-    
-    for i, journal_id in enumerate(prediction_dict['journal_ids']):
-        if journal_id not in misindexed_ids:
-            filtered_labels.append(labels[i])
-            filtered_predictions.append(adjusted_predictions[i])
-
-    return filtered_labels, filtered_predictions
-
-
 def evaluate_individual_models(cnn_predictions, voting_predictions, labels, group_thresh, journal_ids, group_ids):
     """
-    Evaluate the performance on the CNN and voting
-    ensemble, using the validation or test data sets. 
+    Evaluate the performance of each model individuall 
+    
+    For the the CNN and voting ensemble, using the validation or test data sets, calculate metrics. 
     Returns precision and recall for each model.
 
-    Using labels 1 and 0, which do not correspond to prediction output. 
+    Labels 1 and 0 are used here, which do not correspond to prediction output. 
     """
 
     if not group_thresh:
@@ -88,7 +70,9 @@ def BmCS_test_main(
         dataset, journal_ids_path, word_indicies_path, 
         group_thresh, journal_drop, destination, group_ids, misindexed_ids, args):
     """
-    Main function to run voting and CNN, combine results,
+    Main function for testing models on datasets
+
+    Run voting and CNN, combine results,
     adjust decision threshold, and make new predictions
     """
 

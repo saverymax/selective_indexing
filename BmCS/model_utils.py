@@ -1,3 +1,10 @@
+"""
+Module for model related functions
+
+Module contains functions for running models and combining predictions, 
+adjusting in-scope predictions, and adjusting predictions for publication type. 
+"""
+
 import numpy as np
 from pathlib import Path
 import time
@@ -98,6 +105,7 @@ def combine_predictions(voting_predictions, cnn_predictions):
 def filter_pub_type(citations, predictions):
     """
     Filter citations based on the pubtype
+
     This is indicated in two places: 
     Either in the title, where there will be 
     string, usually at the beginning of the title,

@@ -1,4 +1,8 @@
 """
+Module to parse citations in XML
+
+This module parses the XML and filters citations for system predictions, depending on flags provided. 
+
 Occasionally pub year will be None if fail to extract from MedlineDate tag? Or maybe this is not used anymore
 """
 from dateutil.parser import parse
@@ -9,8 +13,8 @@ import sys
 
 def parse_update_file(path, journal_drop, predict_medline, selectively_indexed_ids, predict_all, misindexed_ids):
     """
-    Main parsing function that
-    calls private functions within module. 
+    Main parsing function for BmCS
+
     Will return list of dictionaries, 
     each dictionary containing data for one citation 
     """
@@ -72,6 +76,12 @@ def _construct_citation_dict(citation_data):
        
       
 def _extract_citation_data(medline_citation_node):
+    """
+    Function to read XML and extract citation information
+
+    Fields extracted include PMID, title, abstract, publication date, 
+    affiliation, journal id, publication type, and indexing status.
+    """
 
     pmid_node = medline_citation_node.find('PMID')
     pmid = pmid_node.text.strip()
@@ -125,6 +135,10 @@ def _extract_citation_data(medline_citation_node):
 
 
 def _extract_year_from_medlinedate(medlinedate_text):
+    """
+    Parse year from Medline date field
+    """
+
     pub_year = medlinedate_text[:4]
     try:
         pub_year = int(pub_year)

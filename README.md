@@ -1,10 +1,17 @@
 # Biomedical Citation Selector (BmCS)
 
 This repository contains the source code for the BmCS system, to be used for the prediction of citations requiring MeSH indexing
+This README includes the following sections
+#### Installation
+#### Usage 
+#### Testing
+
 
 ## Installation
 
-Is anaconda or miniconda installed? Is python 3.6 installed? If so, then you are good to go. Skip to section ii.
+Installation has been tested with Ubuntu 16.04. While this installation will likely work with Windows, this cannot be guaranteed. 
+
+Is anaconda or miniconda installed? Is python 3.6 installed? If so, skip to section ii.
 If you do not have anaconda, or miniconda, and python installed, follow the instructions in i.
 
 Note that this package requires python 3.6.
@@ -22,9 +29,8 @@ Then run the bash installer you just downloaded.
 ```
 bash Miniconda3-latest-Linux-x86_64.sh
 ```
-Agree to its demands, and make sure to enter yes when it asks to add the miniconda path to the .bashrc
+Maneuver through its direction. Make sure to enter yes when it asks to add the miniconda path to the .bashrc
 
-Remember to restart the terminal or source the bashrc. Don't worry, we're almost done... 
 
 Unfortunately python 3.7 is not currently compatible with tensorflow 1.11.0, the version used in this system.
 Since the latest miniconda comes with python 3.7 (as of March 2019), we will have to downgrade.
@@ -61,9 +67,9 @@ This will create a dist directory and create a .whl file inside. The .whl file i
 #### Download wheel and installation
 The .whl file can be found in the releases section of this repository: https://github.com/saverymax/selective_indexing/releases
 Under Assets, click on the BmCS-1.0.0-py3-none-any.whl link to download. You should also download the ensemble.joblib
-and model_CNN_weights.hdf5 files. 
+and model_CNN_weights.hdf5 files, whether or not built the wheel yourself or downloaded it. 
 
-Assuming you have downloaded the .whl file, navigate to the directory where it lives and enter the command below to install.
+Assuming you have downloaded the .whl file, navigate to the directory where it lives and run
 ```
 pip install BmCS-1.0.0-py3-none-any.whl
 ```
@@ -83,14 +89,15 @@ To uninstall
 pip uninstall BmCS
 ```
 
+
 ## Usage
 
 The models are not included in the package in this version of the system. However, they are provided in the release. 
 
-Once downloaded, the paths to the models should be provided in the command line options.
+Once downloaded, the paths to the models should be provided via the command line.
 
 ### For NCBI usage
-To run BmCS from the command line
+To run BmCS
 ```
 BmCS --path path/to/some_citations.xml --ensemble-path /path/to/model.joblib --cnn-path /path/to/cnn/weights.hdf5 --predict-all
 ```
@@ -98,7 +105,7 @@ For example, if sample_citations.xml is in your current directory and the models
 ```
 BmCS --path sample_citations.xml --ensemble-path ./models/ensemble.joblib --cnn-path ./models/model_CNN_weights.hdf5 --predict-all
 ```
-This will generate a set of predictions for the citations in sample_citations.xml
+This will generate a set of predictions for the citations in sample_citations.xml. The --predict-all option is required for NCBI usage. 
 
 The prediction results can be found in the citation_predictions_YYYY-DD-MM.txt output file, which will 
 be saved in your current directory, unless otherwise specified. 
@@ -112,10 +119,24 @@ In the prediction field, 4 labels are possible:
 2: Citation should be human-reviewed. 
 3: Citation marked as one of the publication types specified in the publication_types file. This label is off by default and is controlled by --pubtype-filter
 
-### For alternative implementation
+### Alternative implementation
 If the --predict-all option is not provided, there are a few ways to filter and adjust the predictions.
-Add here.
+The flags shown here are explained in more detail in the section below. 
 
+To make predictions solely for selectively indexed journals
+```
+BmCS --path path/to/some_citations.xml --ensemble-path /path/to/model.joblib --cnn-path /path/to/cnn/weights.hdf5
+```
+
+To mark citations of publication types such as comments or erratum with a 3 in the predictions 
+```
+BmCS --path path/to/some_citations.xml --ensemble-path /path/to/model.joblib --cnn-path /path/to/cnn/weights.hdf5 --pubtype-filter
+```
+
+To make predictions for citations only of status MEDLINE
+```
+BmCS --path path/to/some_citations.xml --ensemble-path /path/to/model.joblib --cnn-path /path/to/cnn/weights.hdf5 --predict-medline
+```
 
 ### Command line options:
 
@@ -138,31 +159,29 @@ Add here.
 **--predict-all**
     Optional. If included, system will make predictions 
     for all citations in XML provided, regardless of MEDLINE status or selective indexing status of a given journal. 
-    If this option is not included, the system will switch to behavior intended for use outside of NCBI pipeline, i.e., it will filter for selective indexing designation of journal, publication type, and indexing status.
+    If this option is not included, the system will switch to behavior intended for use outside of NCBI pipeline, i.e., it will filter for selective indexing designation of journal, and indexing status.
 
 **--pubtype-filter**
     Optional. Modified from version 0.2.1. If included, the system will mark citations with publication types specified in publication_type file with a 3 in the output file. 
-    By default this behavior is off, and is overridden by predict-all.
+    By default this behavior is off, and though it can be used in conjunction with --predict-all, it should be kept off for NCBI usage.
  
 **--group-thresh**
     Optional. If included, the system will use the unique, 
-    predetermined thresholds for citations from journals in the science or jurisprudence category. Originally, this was intended to improve performance; however, it was shown to be difficult to apply a threshold chosen on the validation set to the test set.
+    predetermined thresholds for citations from journals in the science or jurisprudence category. 
+    Originally, this was added to improve performance; however, it was shown to be difficult to apply a threshold chosen on the validation set to the test set.
 
 **--journal-drop**
-    Optional. By default the system makes predictions for a small set of journals previously misindexed. Include this option to not include those predictions in the output. This has been shown to improve system precision.
+    Optional. By default the system makes predictions for a small set of journals previously misindexed. Include this option to not include those predictions in the output. Doing so has been shown to improve system precision.
     Important to note, this option has no effect when using --predict-all or --predict-medline. 
 
 **--predict-medline**
     Optional. If included, the system will make predictions for 
     ONLY non-selectively indexed journals, with ONLY MEDLINE statuses. 
-    Important to note, is that without this option, 
+    Important to note, is that without this option and the predict-all option, 
     the system only makes predictions for selectively 
-    indexed journals (those recommended to us by human indexers) 
-    where the status is not MEDLINE or PubMed-not-MEDLINE. The reason 
+    indexed journals where the status is not MEDLINE or PubMed-not-MEDLINE. The reason 
     for this switch is to be able to test the performance of the system 
-    on citations labeled is MEDLINE, and to also be able to use the system 
-    in production, where it is only required to make predictions for selectively 
-    indexed citations where the status in PubMed is not yet known.
+    on citations labeled MEDLINE.
     This option is overridden by predict-all
 
 **--validation** 
@@ -186,7 +205,7 @@ Usage of --validation and --test will be explained below
 To measure performance of the system, validation and test datasets are included with the BmCS
 package. The datasets are not included in the repository. To run the models on these datasets, include the --validation or --test option,
 as shown in the example below. Input one or the other, not both. These tests are not affected
-by the --predict-medline option
+by the --predict-medline, pubtype-filter, or predict-all options, but journal-drop and group-thresh do change system performance for these tests.
 
 For example:
 ```
@@ -218,6 +237,8 @@ will be tested on the model's performance. If the assertions are passed,
 you can be fairly confident that BmCS has been installed correctly and is ready for 
 further use. If options such as journal-drop are included, no assertions will be run,
 but the system's performance can still be observed in the test results.
+
+Important to note is that the system will NOT pass the assertions if the models are retrained. The values used were hand-selected for these models and the values will have to be recalculated or the tests redesigned if new models are provided. 
 
 Further functional testing can be performed using the pytest package.
 ```

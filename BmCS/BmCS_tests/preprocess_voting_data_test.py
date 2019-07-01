@@ -1,6 +1,11 @@
+"""
+Module to process testing data for ensemble
+"""
+
 def preprocess_data(citations):
     """
     Preprocess data for testing voting model.
+
     Return dictionary of lists of each feature.
     This testing module is the same as the production module, 
     the only difference being that the variable labels 

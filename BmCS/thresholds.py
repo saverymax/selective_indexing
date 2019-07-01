@@ -1,5 +1,6 @@
 """
 Threshold variables.
+
 The voting and CNN thresholds
 are only used for testing, 
 and not in the production model.
