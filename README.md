@@ -94,14 +94,13 @@ To run BmCS from the command line
 ```
 BmCS --path path/to/some_citations.xml --ensemble-path /path/to/model.joblib --cnn-path /path/to/cnn/weights.hdf5 --predict-all
 ```
-For example, if sample_citations.xml is in your current directory and the models are in a models diretory also in your current directory
+For example, if sample_citations.xml is in your current directory and the models are in a models diretory 
 ```
 BmCS --path sample_citations.xml --ensemble-path ./models/ensemble.joblib --cnn-path ./models/model_CNN_weights.hdf5 --predict-all
 ```
-will generate a set of predictions for the citations in sample_citations.xml
+This will generate a set of predictions for the citations in sample_citations.xml
 
-By default, the system will iterate through the citations, and make predictions 
-for each. The prediction results can be found in the citation_predictions_YYYY-DD-MM.txt output file, which will 
+The prediction results can be found in the citation_predictions_YYYY-DD-MM.txt output file, which will 
 be saved in your current directory, unless otherwise specified. 
 
 Each prediction is printed on a line, in the format 
@@ -119,7 +118,6 @@ Add here.
 
 
 ### Command line options:
-As of version 0.1.2, 8 options are available. 
 
 **--path** 
     Path to XML of citations for the system to classify. Include the file.xml in the path. 
