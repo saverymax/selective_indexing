@@ -39,7 +39,7 @@ def get_args():
                         dest="predict_all",
                         action="store_false",
                         help="By default the system make predictions for all citations in the xml file, regardless of status or selective indexing status. To switch on filtering, include this option, along with other filtering options.")
-     parser.add_argument("--journal-drop",
+    parser.add_argument("--journal-drop",
                         dest="journal_drop",
                         action="store_true",
                         help="If included, model will not make predictions for journals previously misindexed, which have been shown to be more likely to generate false positives. Must be used with --filter")
