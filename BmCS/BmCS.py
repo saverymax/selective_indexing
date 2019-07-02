@@ -35,18 +35,18 @@ def get_args():
     parser.add_argument("--path",
                         dest="path",
                         help="Path to XML containing batch of citations")
-    parser.add_argument("--group-thresh",
-                        dest="group_thresh",
-                        action="store_true",
-                        help="If included, use predetermined threshold for science and jurisprudence groups. Default is to not use these group thresholds, as they have been shown hard to predict.")
-    parser.add_argument("--journal-drop",
+    parser.add_argument("--filter",
+                        dest="predict_all",
+                        action="store_false",
+                        help="By default the system make predictions for all citations in the xml file, regardless of status or selective indexing status. To switch on filtering, include this option, along with other filtering options.")
+     parser.add_argument("--journal-drop",
                         dest="journal_drop",
                         action="store_true",
-                        help="If included, model will not make predictions for journals previously misindexed, which have been shown to be more likely to generate false positives. Behavior is overriden by --predict-all")
+                        help="If included, model will not make predictions for journals previously misindexed, which have been shown to be more likely to generate false positives. Must be used with --filter")
     parser.add_argument("--pubtype-filter",
                         dest="pub_type_filter",
                         action="store_true",
-                        help="If included, turn on the prediction adjustment for pub types. This means comments, erratum, etc will be marked with a 3 in the output.") 
+                        help="If included, turn on the prediction adjustment for pub types. This means comments, erratum, etc will be marked with a 3 in the output. Can be used with or without --filter") 
     parser.add_argument("--dest",
                         dest="destination",
                         default="./",
@@ -62,11 +62,11 @@ def get_args():
     parser.add_argument("--predict-medline",
                         dest="predict_medline",
                         action="store_true",
-                        help="If included, the system will make predictions for not selectively indexed citations that are labeled MEDLINE.  If not included, it will only make predictions for citations from selectively indexed journals that have been suggested to be important. Behavior is overriden by predict-all")
-    parser.add_argument("--predict-all",
-                        dest="predict_all",
+                        help="If included, the system will make predictions for not selectively indexed citations that are labeled MEDLINE.  If not included, it will only make predictions for citations from selectively indexed journals that have been suggested to be important. Must be used with --filter")
+    parser.add_argument("--group-thresh",
+                        dest="group_thresh",
                         action="store_true",
-                        help="If included, the system will make predictions for all citations in the xml file, regardless of status or selective indexing status.")
+                        help="If included, use predetermined threshold for science and jurisprudence groups. Default is to not use these group thresholds, as they have been shown hard to predict.")
     return parser
 
 

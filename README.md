@@ -99,13 +99,13 @@ Once downloaded, the paths to the models should be provided via the command line
 ### For NCBI usage
 To run BmCS
 ```
-BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --predict-all --path path/to/some_citations.xml 
+BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --path path/to/some_citations.xml 
 ```
 For example, if sample_citations.xml is in your current directory and the models are in a models diretory 
 ```
-BmCS ./models/model_CNN_weights.hdf5 ./models/ensemble.joblib --predict-all --path sample_citations.xml 
+BmCS ./models/model_CNN_weights.hdf5 ./models/ensemble.joblib --path sample_citations.xml 
 ```
-This will generate a set of predictions for the citations in sample_citations.xml. The --predict-all option is required for NCBI usage. 
+This will generate a set of predictions for the citations in sample_citations.xml.
 
 The prediction results can be found in the citation_predictions_YYYY-DD-MM.txt output file, which will 
 be saved in your current directory, unless otherwise specified. 
@@ -120,22 +120,22 @@ In the prediction field, 4 labels are possible:
 3: Citation marked as one of the publication types specified in the publication_types file. This label is off by default and is controlled by --pubtype-filter
 
 ### Alternative implementation
-If the --predict-all option is not provided, there are a few ways to filter and adjust the predictions.
+If the --filter option is provided, there are a few ways to filter and adjust the predictions.
 The flags shown here are explained in more detail in the section below. 
 
-To make predictions solely for selectively indexed journals
+To make predictions solely for selectively indexed journals with statuses not MEDLINE or PubMed-not-MEDLINE
 ```
-BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --path path/to/some_citations.xml
+BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --path path/to/some_citations.xml --filter
 ```
 
-To mark citations of publication types such as comments or erratum with a 3 in the predictions 
+To mark the citations mentioned above that are of publication types such as comments or erratum with a 3 in the predictions 
 ```
-BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --path path/to/some_citations.xml --pubtype-filter
+BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --path path/to/some_citations.xml --filter --pubtype-filter
 ```
 
 To make predictions for citations only of status MEDLINE
 ```
-BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --path path/to/some_citations.xml --predict-medline
+BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --path path/to/some_citations.xml --filter --predict-medline
 ```
 
 ### Command line options:
@@ -156,14 +156,14 @@ BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --path path/to/some_citatio
     citation_predictions_YYYY-DD-MM.txt if running system on a batch of citations; BmCS_test_results.txt 
     if running on test or validation datasets.   
 
-**--predict-all**
-    Optional. If included, system will make predictions 
-    for all citations in XML provided, regardless of MEDLINE status or selective indexing status of a given journal. 
-    If this option is not included, the system will switch to behavior intended for use outside of NCBI pipeline, i.e., it will filter for selective indexing designation of journal, and indexing status.
+**--filter**
+    Optional. By default, the system will make predictions for all citations in XML provided, regardless of MEDLINE status or selective indexing status of a given journal. 
+    To turn this behvaior off, this option can be used. The system will switch to behavior intended for use outside of NCBI pipeline, i.e., the system will make predictions for selectively indexed journals with statuses not MEDLINE or Pubmed-not-MEDLINE.
+    This option can also be used in conjunction with the other filtering options below for more fine-grained control.  
 
 **--pubtype-filter**
     Optional. Modified from version 0.2.1. If included, the system will mark citations with publication types specified in publication_type file with a 3 in the output file. 
-    By default this behavior is off, and though it can be used in conjunction with --predict-all, it should be kept off for NCBI usage.
+    By default this behavior is off, and though it can be used in conjunction with or without --filter, it should be kept off for NCBI usage.
  
 **--group-thresh**
     Optional. If included, the system will use the unique, 
@@ -172,17 +172,14 @@ BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --path path/to/some_citatio
 
 **--journal-drop**
     Optional. By default the system makes predictions for a small set of journals previously misindexed. Include this option to not include those predictions in the output. Doing so has been shown to improve system precision.
-    Important to note, this option has no effect when using --predict-all or --predict-medline. 
+    --filter must be included to use this option, and when --predict-medline is included, this option has no effect. 
 
 **--predict-medline**
     Optional. If included, the system will make predictions for 
     ONLY non-selectively indexed journals, with ONLY MEDLINE statuses. 
-    Important to note, is that without this option and the predict-all option, 
-    the system only makes predictions for selectively 
-    indexed journals where the status is not MEDLINE or PubMed-not-MEDLINE. The reason 
-    for this switch is to be able to test the performance of the system 
+    The reason for this switch is to be able to test the performance of the system 
     on citations labeled MEDLINE.
-    This option is overridden by predict-all
+    --filter must be included to use this option.
 
 **--validation** 
     Optional. Include to run system on 2018 validation dataset. Do not include --path if
@@ -205,11 +202,11 @@ Usage of --validation and --test will be explained below
 To measure performance of the system, validation and test datasets are included with the BmCS
 package, as well as in the repository. To run the models on these datasets, include the --validation or --test option,
 as shown in the example below. Input one or the other, not both. These tests are not affected
-by the --predict-medline, pubtype-filter, or predict-all options, but journal-drop and group-thresh do change system performance for these tests.
+by the predict-medline, pubtype-filter and filter options, but journal-drop and group-thresh do change system performance for these tests.
 
 For example:
 ```
-BmCS --validation --dest path/to/output/
+BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --validation --dest path/to/output/
 ```
 This will output a performance report into the file BmCS_test_results.txt in the output directory. 
 It is not necessary to include the --path option when running these tests. 
@@ -226,11 +223,11 @@ CNN precision
 
 Once the program is installed run both of the following commands: 
 ```
-BmCS --validation
+BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --validation
 ```
 and
 ```
-BmCS --test
+BmCS /path/to/cnn/weights.hdf5 /path/to/model.joblib --test
 ```
 If no options are included, a set of assertions 
 will be tested on the model's performance. If the assertions are passed,
@@ -241,7 +238,7 @@ but the system's performance can still be observed in the test results.
 Important to note is that the system will NOT pass the assertions if the models are retrained. The values used were hand-selected for these models and the values will have to be recalculated or the tests redesigned if new models are provided. 
 
 Further functional testing can be performed using the pytest package.
-To successfully run these tests, the 2 models must be in a models directory in your current directory.
+To successfully run these tests, the 2 models must be in a directory named models in your current directory.
 ```
 pip install pytest
 pytest --pyargs BmCS
