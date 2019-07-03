@@ -77,6 +77,8 @@ pip install BmCS-1.0.0-py3-none-any.whl
 If all goes well, you have now installed the Biomedical Citation Selector (BmCS). Congratulations!
 BmCS has been added to PATH, and is executable from the command line. 
 
+The python dependencies have also been installed with the package. Dependencies installed can be found in the setup.py file.
+
 However, before it can be used, there is one more step. Currently the text is tokenized with the NLTK tokenizer. 
 NLTK requires you install it separately. Once you do this once,
 you don't have to worry about it again, even if you uninstall and 
