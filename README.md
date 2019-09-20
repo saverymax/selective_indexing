@@ -1,11 +1,11 @@
 # Biomedical Citation Selector (BmCS)
 
-This repository contains the source code for the BmCS system, to be used for the prediction of citations requiring MeSH indexing
+This repository contains the source code for the BmCS system, to be used for the prediction of citations requiring MeSH indexing. The code here was developed up to the point where it could be used for NCBI's pipeline, whereupon it was forked into a new repository.
 This README includes the following sections
 
-Installation
-Usage
-Testing
+Installation   
+Usage   
+Testing   
 
 
 ## Installation
